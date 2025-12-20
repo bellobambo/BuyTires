@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tire Search - Dynamic Populated</title>
+    <style>
+        :root {
+            --primary-orange: #ff6000;
+            --btn-shadow: #e65600;
+            --selection-blue: #005bc5;
+            --text-gray: #666;
+            --border-light: #e0e0e0;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #f8f8f8;
+            display: flex;
+            justify-content: center;
+            padding-top: 60px;
+            margin: 0;
+        }
+
+        .container {
+            background: #fff;
+            width: 820px;
+            padding: 35px;
+            border: 1px solid var(--border-light);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
+            position: relative;
+        }
+
+        .powered-by {
+            position: absolute;
+            top: -35px;
+            right: 0;
+            font-size: 11px;
+            color: #888;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        
+        .powered-by strong { color: #333; }
+        .powered-by span { color: #d00; }
+
+        .search-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #ffccb0;
+            background-color: #fffaf7;
+            padding: 12px 25px;
+            margin-bottom: 30px;
+        }
+
+        .search-header h2 {
+            color: var(--primary-orange);
+            font-size: 19px;
+            margin: 0;
+            font-weight: 700;
+            font-family: 'Arial Narrow', sans-serif;
+        }
+
+        .search-type-select {
+            padding: 5px 10px;
+            border: 1px solid #444;
+            width: 190px;
+            font-size: 15px;
+            outline: none;
+            cursor: pointer;
+            background-color: var(--selection-blue);
+            color: white;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        .form-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .form-row label {
+            width: 110px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #444;
+            flex-shrink: 0;
+        }
+
+        .asterisk {
+            color: #cc0000;
+            margin-left: 2px;
+        }
+
+        .dotted-label {
+            border-bottom: 1px dotted #666;
+            display: inline-block;
+            line-height: 1;
+        }
+
+        .form-row select {
+            width: 100%;
+            padding: 9px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #333;
+            background: #fff;
+            box-sizing: border-box;
+        }
+
+        .searchable-select {
+            position: relative;
+            width: 100%;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 9px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 10;
+        }
+
+        .search-input.active {
+            display: block;
+        }
+
+        .dropdown-options {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 200px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #ccc;
+            border-top: none;
+            display: none;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .dropdown-options.active {
+            display: block;
+        }
+
+        .dropdown-option {
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .dropdown-option:hover {
+            background-color: #f0f0f0;
+        }
+
+        .dropdown-option.highlighted {
+            background-color: #e6f2ff;
+            color: #005bc5;
+        }
+
+        .no-results {
+            padding: 8px 12px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .create-option {
+            padding: 8px 12px;
+            background-color: #f8f8f8;
+            border-top: 1px solid #eee;
+            color: #005bc5;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .create-option:hover {
+            background-color: #e6f2ff;
+        }
+
+        .custom-option {
+            color: #005bc5;
+            font-weight: bold;
+        }
+
+        .vehicle-preview {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .vehicle-name {
+            font-weight: 700;
+            font-size: 14px;
+            color: #222;
+        }
+
+        .vehicle-specs {
+            font-size: 10px;
+            color: #777;
+            margin-top: 4px;
+            letter-spacing: 0.3px;
+        }
+
+        .search-btn {
+            grid-column: span 2;
+            background-color: var(--primary-orange);
+            color: white;
+            border: none;
+            padding: 16px;
+            font-size: 18px;
+            font-weight: 800;
+            border-radius: 3px;
+            margin-top: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 var(--btn-shadow);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.1s;
+        }
+
+        .search-btn:hover {
+            background-color: #ff7020;
+        }
+
+        .search-btn:active {
+            box-shadow: 0 1px 0 var(--btn-shadow);
+            transform: translateY(3px);
+        }
+
+        .select-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .expandable-select {
+            width: 100%;
+        }
+
+        /* Clear button styles */
+        .clear-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 16px;
+            color: #999;
+            cursor: pointer;
+            display: none;
+            z-index: 11;
+            padding: 4px;
+            line-height: 1;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+
+        .clear-btn:hover {
+            color: #666;
+            background-color: #f0f0f0;
+        }
+
+        .select-wrapper .clear-btn {
+            right: 10px;
+        }
+
+        .searchable-select .clear-btn {
+            right: 10px;
+            z-index: 12;
+        }
+
+        /* Ensure all form fields have consistent width */
+        .form-row > *:not(label) {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="powered-by">POWERED BY <strong>TIRE<span>CONNECT</span></strong></div>
+    
+    <div class="search-header">
+        <h2>HOW WOULD YOU LIKE TO SEARCH?</h2>
+        <select class="search-type-select">
+            <option>By Tire Size</option>
+            <option selected>By Vehicle</option>
+        </select>
+    </div>
+
+    <div class="content-grid">
+        <div class="form-side">
+            <div class="form-row">
+                <label>Year <span class="asterisk">*</span></label>
+                <div class="select-wrapper">
+                    <select id="yearSelect" class="expandable-select"></select>
+                    <button class="clear-btn" id="clearYear">×</button>
+                </div>
+            </div>
+            <div class="form-row">
+                <label>Make <span class="asterisk">*</span></label>
+                <div class="select-wrapper">
+                    <select id="makeSelect" class="expandable-select"></select>
+                    <button class="clear-btn" id="clearMake">×</button>
+                </div>
+            </div>
+            <div class="form-row">
+                <label>Model <span class="asterisk">*</span></label>
+                <div class="searchable-select">
+                    <select id="modelSelect">
+                        <option value="">Select Model</option>
+                    </select>
+                    <input type="text" class="search-input" id="modelSearch" placeholder="Search or type custom model...">
+                    <div class="dropdown-options" id="modelDropdown"></div>
+                    <button class="clear-btn" id="clearModel">×</button>
+                </div>
+            </div>
+            <div class="form-row">
+                <label>Trim <span class="asterisk">*</span></label>
+                <div class="searchable-select">
+                    <select id="trimSelect">
+                        <option value="">Select Trim</option>
+                    </select>
+                    <input type="text" class="search-input" id="trimSearch" placeholder="Search or type custom trim...">
+                    <div class="dropdown-options" id="trimDropdown"></div>
+                    <button class="clear-btn" id="clearTrim">×</button>
+                </div>
+            </div>
+            <div class="form-row">
+                <label><span class="dotted-label">Tire Size</span> <span class="asterisk">*</span></label>
+                <div class="searchable-select">
+                    <select id="tireSizeSelect">
+                        <option value="">Select Tire Size</option>
+                    </select>
+                    <input type="text" class="search-input" id="tireSizeSearch" placeholder="Search or type custom size...">
+                    <div class="dropdown-options" id="tireSizeDropdown"></div>
+                    <button class="clear-btn" id="clearTireSize">×</button>
+                </div>
+            </div>
+            <div class="form-row">
+                <label>Season <span class="asterisk">*</span></label>
+                <select id="seasonSelect">
+                    <option>All Tires</option>
+                    <option>Summer</option>
+                    <option>Winter</option>
+                    <option>All-Season</option>
+                </select>
+                <button class="clear-btn" id="clearSeason">×</button>
+            </div>
+        </div>
+
+        <div class="vehicle-preview">
+            <svg width="300" height="150" viewBox="0 0 300 150" style="margin-bottom: 15px;">
+                <defs>
+                    <linearGradient id="carGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#2c3e50;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#34495e;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <ellipse cx="150" cy="120" rx="100" ry="15" fill="#333" opacity="0.3"/>
+                <path d="M 80 100 L 100 80 L 200 80 L 220 100 Z" fill="url(#carGradient)"/>
+                <rect x="70" y="100" width="160" height="30" rx="5" fill="url(#carGradient)"/>
+                <path d="M 105 82 L 120 88 L 180 88 L 195 82 Z" fill="#87CEEB" opacity="0.6"/>
+                <circle cx="100" cy="130" r="18" fill="#2c3e50"/>
+                <circle cx="100" cy="130" r="10" fill="#7f8c8d"/>
+                <circle cx="200" cy="130" r="18" fill="#2c3e50"/>
+                <circle cx="200" cy="130" r="10" fill="#7f8c8d"/>
+                <rect x="85" y="105" width="15" height="8" rx="2" fill="#FFA500"/>
+                <rect x="200" y="105" width="15" height="8" rx="2" fill="#FF0000"/>
+            </svg>
+            <div class="vehicle-name">Select your vehicle</div>
+            <div class="vehicle-specs">Choose year, make, model, and trim</div>
+        </div>
+
+        <button class="search-btn">
+            <span>🔍</span> FIND YOUR TIRES NOW
+        </button>
+    </div>
+</div>
+
+<script>
+    const vehicleData = {
+        "Acura": {
+            models: ["MDX", "RDX", "TLX", "Integra", "NSX"],
+            trims: {
+                "MDX": ["Base", "Technology", "A-Spec", "Type S"],
+                "RDX": ["Base", "Technology", "A-Spec", "Advance"],
+                "TLX": ["Base", "Technology", "A-Spec", "Type S"],
+                "Integra": ["Base", "Technology", "A-Spec", "Type S"],
+                "NSX": ["Base", "Type S"]
+            },
+            tireSizes: {
+                "MDX": ["255/55R20", "265/45R21"],
+                "RDX": ["235/60R18", "255/45R20"],
+                "TLX": ["225/50R18", "245/40R19"],
+                "Integra": ["225/45R18", "245/40R19"],
+                "NSX": ["F:245/35R19 R:305/30R20"]
+            }
+        },
+        "Audi": {
+            models: ["A4", "Q5", "Q7", "Q3", "A3", "A6", "A5", "Q8", "e-tron", "RS3", "S4"],
+            trims: {
+                "A4": ["Premium", "Premium Plus", "Prestige", "S-Line"],
+                "Q5": ["Premium", "Premium Plus", "Prestige", "S-Line"],
+                "Q7": ["Premium", "Premium Plus", "Prestige"],
+                "Q3": ["Premium", "Premium Plus", "S-Line"],
+                "A3": ["Base", "Premium", "Premium Plus", "Prestige"],
+                "A6": ["Premium", "Premium Plus", "Prestige"],
+                "A5": ["Premium", "Premium Plus", "Prestige", "S-Line"],
+                "Q8": ["Premium", "Premium Plus", "Prestige"],
+                "e-tron": ["Premium", "Premium Plus", "Prestige"],
+                "RS3": ["Base"],
+                "S4": ["Premium", "Premium Plus", "Prestige"]
+            },
+            tireSizes: {
+                "A4": ["245/40R18", "245/35R19"],
+                "Q5": ["235/65R17", "255/45R20"],
+                "Q7": ["255/55R19", "285/45R20"],
+                "Q3": ["215/65R17", "235/55R18"],
+                "A3": ["225/45R17", "225/40R18"],
+                "A6": ["245/45R18", "255/40R20"],
+                "A5": ["245/40R18", "255/35R19"],
+                "Q8": ["255/55R19", "285/45R21"],
+                "e-tron": ["255/50R20", "265/40R22"],
+                "RS3": ["235/35R19"],
+                "S4": ["245/40R18", "255/35R19"]
+            }
+        },
+        "BMW": {
+            models: ["3 Series", "X3", "X5", "5 Series", "X1", "X7", "4 Series", "2 Series", "M3", "M4", "i4"],
+            trims: {
+                "3 Series": ["330i", "330e", "M340i", "M3"],
+                "X3": ["sDrive30i", "xDrive30i", "M40i"],
+                "X5": ["sDrive40i", "xDrive40i", "M50i"],
+                "5 Series": ["530i", "540i", "M550i", "M5"],
+                "X1": ["sDrive28i", "xDrive28i"],
+                "X7": ["xDrive40i", "M60i"],
+                "4 Series": ["430i", "M440i", "M4"],
+                "2 Series": ["230i", "M240i", "M2"],
+                "M3": ["Base", "Competition"],
+                "M4": ["Base", "Competition"],
+                "i4": ["eDrive35", "eDrive40", "M50"]
+            },
+            tireSizes: {
+                "3 Series": ["225/45R18", "225/40R19"],
+                "X3": ["245/50R19", "245/45R20"],
+                "X5": ["265/50R19", "275/40R21"],
+                "5 Series": ["245/45R18", "245/40R19"],
+                "X1": ["225/50R18", "225/45R19"],
+                "X7": ["275/50R20", "285/45R21"],
+                "4 Series": ["225/45R18", "225/40R19"],
+                "2 Series": ["225/40R18", "225/35R19"],
+                "M3": ["275/35R19", "285/30R20"],
+                "M4": ["275/35R19", "285/30R20"],
+                "i4": ["225/50R18", "245/45R19"]
+            }
+        },
+        "Chevrolet": {
+            models: ["Silverado", "Equinox", "Tahoe", "Traverse", "Camaro", "Corvette", "Colorado", "Blazer", "Malibu", "Suburban"],
+            trims: {
+                "Silverado": ["Custom", "LT", "LTZ", "RST", "Trail Boss"],
+                "Equinox": ["LT", "Premier", "RS"],
+                "Tahoe": ["LS", "LT", "Premier", "RST", "Z71"],
+                "Traverse": ["LS", "LT", "Premier", "RS"],
+                "Camaro": ["1LT", "2LT", "3LT", "SS", "ZL1"],
+                "Corvette": ["1LT", "2LT", "3LT", "Z06", "Z51"],
+                "Colorado": ["LT", "Trail Boss", "Z71", "ZR2"],
+                "Blazer": ["2LT", "3LT", "Premier", "RS"],
+                "Malibu": ["LT", "Premier", "RS"],
+                "Suburban": ["LS", "LT", "Premier", "RST"]
+            },
+            tireSizes: {
+                "Silverado": ["265/70R17", "275/60R20"],
+                "Equinox": ["225/65R17", "235/50R19"],
+                "Tahoe": ["265/70R17", "275/60R20"],
+                "Traverse": ["255/65R18", "255/55R20"],
+                "Camaro": ["245/40R20", "285/30R20", "305/30R20"],
+                "Corvette": ["F:245/35R19 R:305/30R20", "F:275/30R20 R:345/25R21"],
+                "Colorado": ["255/65R17", "265/65R17", "265/70R17"],
+                "Blazer": ["225/65R17", "235/50R20"],
+                "Malibu": ["225/55R17", "245/40R19"],
+                "Suburban": ["265/70R17", "275/60R20"]
+            }
+        },
+        "Ford": {
+            models: ["F-150", "Explorer", "Escape", "Mustang", "Bronco", "Edge", "Expedition", "Maverick", "Ranger", "Bronco Sport"],
+            trims: {
+                "F-150": ["King Ranch", "Lariat", "Limited", "Platinum", "Raptor", "XLT"],
+                "Explorer": ["Base", "Limited", "Platinum", "ST", "XLT"],
+                "Escape": ["S", "SE", "SEL", "ST-Line"],
+                "Mustang": ["EcoBoost", "GT", "Mach 1", "Shelby GT500"],
+                "Bronco": ["Base", "Big Bend", "Outer Banks", "Raptor", "Wildtrak"],
+                "Edge": ["SE", "SEL", "ST", "Titanium"],
+                "Expedition": ["King Ranch", "Limited", "Platinum", "XLT"],
+                "Maverick": ["Lariat", "XL", "XLT"],
+                "Ranger": ["Lariat", "Raptor", "XL", "XLT"],
+                "Bronco Sport": ["Base", "Big Bend", "Outer Banks", "Badlands"]
+            },
+            tireSizes: {
+                "F-150": ["245/70R17", "275/65R18", "275/55R20"],
+                "Explorer": ["255/65R18", "255/55R20"],
+                "Escape": ["215/65R17", "225/60R18"],
+                "Mustang": ["235/50R18", "255/40R19", "275/40R19"],
+                "Bronco": ["255/70R16", "285/70R17", "315/70R17", "35x12.50R17"],
+                "Edge": ["245/60R18", "245/50R20"],
+                "Expedition": ["275/65R18", "285/45R22"],
+                "Maverick": ["225/65R17"],
+                "Ranger": ["255/70R16", "265/70R17"],
+                "Bronco Sport": ["225/65R17", "225/60R18"]
+            }
+        },
+        "Honda": {
+            models: ["CR-V", "Accord", "Civic", "Pilot", "HR-V", "Odyssey", "Passport", "Ridgeline"],
+            trims: {
+                "CR-V": ["EX", "EX-L", "LX", "Sport", "Touring"],
+                "Accord": ["EX", "EX-L", "Hybrid Sport", "Sport", "Touring"],
+                "Civic": ["EX", "LX", "Si", "Sport", "Touring", "Type R"],
+                "Pilot": ["EX", "EX-L", "Elite", "Sport", "TrailSport"],
+                "HR-V": ["EX", "EX-L", "LX", "Sport"],
+                "Odyssey": ["EX", "EX-L", "LX", "Touring"],
+                "Passport": ["EX-L", "Elite", "Sport", "TrailSport"],
+                "Ridgeline": ["RTL", "RTL-E", "Sport", "TrailSport"]
+            },
+            tireSizes: {
+                "CR-V": ["235/65R17", "235/60R18"],
+                "Accord": ["225/50R17", "235/40R19"],
+                "Civic": ["215/55R16", "235/40R18", "265/30R19"],
+                "Pilot": ["245/60R18", "245/50R20"],
+                "HR-V": ["215/55R17", "225/50R18"],
+                "Odyssey": ["235/60R18", "235/55R19"],
+                "Passport": ["245/60R18", "265/50R20"],
+                "Ridgeline": ["245/60R18", "265/50R20"]
+            }
+        },
+        "Hyundai": {
+            models: ["Tucson", "Santa Fe", "Elantra", "Sonata", "Palisade", "Kona", "Venue", "IONIQ 5", "IONIQ 6", "Accent"],
+            trims: {
+                "Tucson": ["SE", "SEL", "Limited", "N Line"],
+                "Santa Fe": ["SE", "SEL", "Limited", "Calligraphy"],
+                "Elantra": ["SE", "SEL", "Limited", "N Line", "N"],
+                "Sonata": ["SE", "SEL", "Limited", "N Line"],
+                "Palisade": ["SE", "SEL", "Limited", "Calligraphy"],
+                "Kona": ["SE", "SEL", "Limited", "N Line"],
+                "Venue": ["SE", "SEL"],
+                "IONIQ 5": ["SE", "SEL", "Limited"],
+                "IONIQ 6": ["SE", "SEL", "Limited"],
+                "Accent": ["SE", "SEL"]
+            },
+            tireSizes: {
+                "Tucson": ["235/65R17", "245/45R20"],
+                "Santa Fe": ["235/65R17", "235/55R19"],
+                "Elantra": ["205/55R16", "225/45R17"],
+                "Sonata": ["205/65R16", "235/45R18"],
+                "Palisade": ["245/60R18", "245/50R20"],
+                "Kona": ["205/60R16", "235/45R18"],
+                "Venue": ["195/60R16"],
+                "IONIQ 5": ["235/55R19", "255/45R20"],
+                "IONIQ 6": ["225/55R18", "245/45R19"],
+                "Accent": ["185/65R15"]
+            }
+        },
+        "Jeep": {
+            models: ["Grand Cherokee", "Wrangler", "Cherokee", "Compass", "Renegade", "Wagoneer", "Grand Wagoneer"],
+            trims: {
+                "Grand Cherokee": ["Laredo", "Limited", "Overland", "Summit", "Trailhawk"],
+                "Wrangler": ["Sport", "Willys", "Sahara", "Rubicon"],
+                "Cherokee": ["Latitude", "Limited", "Trailhawk", "Trailhawk Elite"],
+                "Compass": ["Latitude", "Limited", "Trailhawk"],
+                "Renegade": ["Sport", "Latitude", "Limited", "Trailhawk"],
+                "Wagoneer": ["Series I", "Series II", "Series III"],
+                "Grand Wagoneer": ["Series I", "Series II", "Series III"]
+            },
+            tireSizes: {
+                "Grand Cherokee": ["265/60R18", "275/55R20"],
+                "Wrangler": ["245/75R17", "255/70R18", "315/70R17"],
+                "Cherokee": ["225/65R17", "235/60R18"],
+                "Compass": ["215/65R17", "225/55R18"],
+                "Renegade": ["215/65R17", "225/60R17"],
+                "Wagoneer": ["275/55R20", "275/50R22"],
+                "Grand Wagoneer": ["275/55R20", "275/50R22"]
+            }
+        },
+        "Kia": {
+            models: ["Sportage", "Sorento", "Telluride", "Forte", "K5", "Seltos", "Soul", "Carnival", "Stinger", "EV6"],
+            trims: {
+                "Sportage": ["LX", "EX", "X-Line", "SX-Prestige"],
+                "Sorento": ["LX", "S", "EX", "SX-Prestige"],
+                "Telluride": ["S", "EX", "SX", "SX-Prestige"],
+                "Forte": ["FE", "LX", "GT-Line", "GT"],
+                "K5": ["LX", "LXS", "GT-Line", "GT"],
+                "Seltos": ["S", "LX", "EX", "SX"],
+                "Soul": ["S", "LX", "EX", "GT-Line"],
+                "Carnival": ["LX", "EX", "SX", "SX-Prestige"],
+                "Stinger": ["GT-Line", "GT1", "GT2"],
+                "EV6": ["Light", "Wind", "GT-Line", "GT"]
+            },
+            tireSizes: {
+                "Sportage": ["225/60R17", "235/55R19"],
+                "Sorento": ["235/65R17", "245/60R18"],
+                "Telluride": ["245/60R18", "265/50R20"],
+                "Forte": ["205/55R16", "225/45R17"],
+                "K5": ["205/65R16", "235/45R18"],
+                "Seltos": ["205/60R16", "235/45R18"],
+                "Soul": ["205/60R16", "225/45R18"],
+                "Carnival": ["235/65R17", "235/60R18"],
+                "Stinger": ["225/45R18", "225/40R19"],
+                "EV6": ["235/60R18", "255/45R20"]
+            }
+        },
+        "Lexus": {
+            models: ["RX", "NX", "ES", "GX", "UX", "IS", "LS", "LC", "RC", "LX"],
+            trims: {
+                "RX": ["350", "350h", "450h+", "500h", "F Sport"],
+                "NX": ["250", "350", "350h", "450h+", "F Sport"],
+                "ES": ["250", "300h", "350", "F Sport"],
+                "GX": ["460", "Premium", "Luxury"],
+                "UX": ["200", "250", "250h", "F Sport"],
+                "IS": ["300", "350", "500", "F Sport"],
+                "LS": ["500", "500h", "F Sport"],
+                "LC": ["500", "500h", "F Sport"],
+                "RC": ["300", "350", "F Sport"],
+                "LX": ["600", "Premium", "Luxury"]
+            },
+            tireSizes: {
+                "RX": ["235/65R18", "235/55R20"],
+                "NX": ["225/65R17", "235/50R20"],
+                "ES": ["215/55R17", "235/45R18"],
+                "GX": ["265/65R17", "265/60R18"],
+                "UX": ["215/60R17", "225/50R18"],
+                "IS": ["225/45R17", "225/40R18"],
+                "LS": ["245/45R19", "245/40R20"],
+                "LC": ["F:245/40R21 R:275/35R21"],
+                "RC": ["235/45R17", "235/40R18"],
+                "LX": ["285/50R22", "265/60R18"]
+            }
+        },
+        "Mercedes-Benz": {
+            models: ["C-Class", "E-Class", "GLC", "GLE", "GLA", "S-Class", "CLA", "GLS", "A-Class", "AMG GT"],
+            trims: {
+                "C-Class": ["C 300", "C 43 AMG", "C 63 AMG"],
+                "E-Class": ["E 350", "E 450", "E 53 AMG", "E 63 AMG"],
+                "GLC": ["GLC 300", "GLC 350e", "GLC 43 AMG", "GLC 63 AMG"],
+                "GLE": ["GLE 350", "GLE 450", "GLE 53 AMG", "GLE 63 AMG"],
+                "GLA": ["GLA 250", "GLA 35 AMG", "GLA 45 AMG"],
+                "S-Class": ["S 500", "S 580", "Maybach", "AMG S 63"],
+                "CLA": ["CLA 250", "CLA 35 AMG", "CLA 45 AMG"],
+                "GLS": ["GLS 450", "GLS 580", "Maybach", "AMG GLS 63"],
+                "A-Class": ["A 220", "A 35 AMG", "A 45 AMG"],
+                "AMG GT": ["GT 43", "GT 53", "GT 63", "GT Black Series"]
+            },
+            tireSizes: {
+                "C-Class": ["225/45R18", "225/40R19"],
+                "E-Class": ["245/45R18", "245/40R19"],
+                "GLC": ["235/60R18", "255/45R20"],
+                "GLE": ["255/50R19", "275/50R20"],
+                "GLA": ["235/55R18", "235/50R19"],
+                "S-Class": ["245/45R19", "245/40R20"],
+                "CLA": ["225/45R18", "225/40R19"],
+                "GLS": ["275/50R20", "285/45R21"],
+                "A-Class": ["205/55R17", "205/50R18"],
+                "AMG GT": ["F:265/35R19 R:305/30R20", "F:275/35R20 R:315/30R21"]
+            }
+        },
+        "Nissan": {
+            models: ["Rogue", "Altima", "Sentra", "Murano", "Pathfinder", "Frontier", "Titan", "Armada", "Kicks", "Maxima"],
+            trims: {
+                "Rogue": ["S", "SV", "SL", "Platinum"],
+                "Altima": ["S", "SR", "SV", "SL", "Platinum"],
+                "Sentra": ["S", "SV", "SR", "Premium"],
+                "Murano": ["S", "SV", "SL", "Platinum"],
+                "Pathfinder": ["S", "SV", "SL", "Platinum"],
+                "Frontier": ["S", "SV", "Pro-4X", "SL"],
+                "Titan": ["S", "SV", "Pro-4X", "Platinum"],
+                "Armada": ["S", "SV", "SL", "Platinum"],
+                "Kicks": ["S", "SV", "SR"],
+                "Maxima": ["S", "SV", "SL", "Platinum"]
+            },
+            tireSizes: {
+                "Rogue": ["225/60R18", "235/55R19"],
+                "Altima": ["205/65R16", "235/40R19"],
+                "Sentra": ["205/55R16", "215/50R17"],
+                "Murano": ["235/65R18", "235/55R20"],
+                "Pathfinder": ["255/60R18", "255/50R20"],
+                "Frontier": ["265/70R16", "265/65R17"],
+                "Titan": ["265/70R18", "275/60R20"],
+                "Armada": ["265/70R18", "275/50R22"],
+                "Kicks": ["205/55R17", "205/50R18"],
+                "Maxima": ["245/40R19"]
+            }
+        },
+        "Subaru": {
+            models: ["Outback", "Forester", "Crosstrek", "Ascent", "Impreza", "WRX", "BRZ", "Legacy"],
+            trims: {
+                "Outback": ["Base", "Premium", "Limited", "Touring", "Wilderness"],
+                "Forester": ["Base", "Premium", "Sport", "Limited", "Touring"],
+                "Crosstrek": ["Base", "Premium", "Sport", "Limited"],
+                "Ascent": ["Base", "Premium", "Limited", "Touring"],
+                "Impreza": ["Base", "Premium", "Sport", "Limited"],
+                "WRX": ["Base", "Premium", "Limited", "GT"],
+                "BRZ": ["Base", "Premium", "Limited"],
+                "Legacy": ["Base", "Premium", "Limited", "Touring"]
+            },
+            tireSizes: {
+                "Outback": ["225/65R17", "225/60R18"],
+                "Forester": ["225/60R17", "225/55R18"],
+                "Crosstrek": ["225/60R17", "225/55R18"],
+                "Ascent": ["245/60R18", "245/50R20"],
+                "Impreza": ["205/55R16", "205/50R17"],
+                "WRX": ["245/40R18", "245/35R19"],
+                "BRZ": ["215/45R17", "215/40R18"],
+                "Legacy": ["205/55R16", "225/50R18"]
+            }
+        },
+        "Tesla": {
+            models: ["Model Y", "Model 3", "Model S", "Model X", "Cybertruck"],
+            trims: {
+                "Model Y": ["Long Range AWD", "Performance", "RWD"],
+                "Model 3": ["Long Range AWD", "Performance", "RWD"],
+                "Model S": ["Long Range", "Plaid"],
+                "Model X": ["Long Range", "Plaid"],
+                "Cybertruck": ["Dual Motor", "Tri Motor"]
+            },
+            tireSizes: {
+                "Model Y": ["255/45R19", "255/40R20"],
+                "Model 3": ["235/45R18", "235/40R19", "235/35R20"],
+                "Model S": ["245/45R19", "265/35R21"],
+                "Model X": ["255/45R20", "265/35R22"],
+                "Cybertruck": ["285/65R20", "305/55R20"]
+            }
+        },
+        "Toyota": {
+            models: ["RAV4", "Camry", "Tacoma", "Highlander", "Corolla", "4Runner", "Tundra", "Sequoia", "Sienna", "Prius"],
+            trims: {
+                "RAV4": ["LE", "XLE", "Adventure", "Limited", "TRD Off-Road"],
+                "Camry": ["LE", "SE", "XLE", "XSE", "TRD"],
+                "Tacoma": ["SR", "SR5", "TRD Off-Road", "TRD Pro", "Limited"],
+                "Highlander": ["LE", "XLE", "Limited", "Platinum"],
+                "Corolla": ["LE", "SE", "XLE", "XSE"],
+                "4Runner": ["SR5", "TRD Off-Road", "TRD Pro", "Limited"],
+                "Tundra": ["SR", "SR5", "Limited", "Platinum", "TRD Pro"],
+                "Sequoia": ["SR5", "Limited", "Platinum", "TRD Pro"],
+                "Sienna": ["LE", "XLE", "Limited", "Platinum"],
+                "Prius": ["LE", "XLE", "Limited", "Prime"]
+            },
+            tireSizes: {
+                "RAV4": ["225/65R17", "235/55R19"],
+                "Camry": ["205/65R16", "235/45R18"],
+                "Tacoma": ["265/70R16", "265/65R17"],
+                "Highlander": ["245/60R18", "235/55R20"],
+                "Corolla": ["195/65R15", "215/45R17"],
+                "4Runner": ["265/70R17"],
+                "Tundra": ["275/65R18", "285/45R22"],
+                "Sequoia": ["275/65R18", "285/50R22"],
+                "Sienna": ["235/60R18", "235/50R20"],
+                "Prius": ["195/65R15", "215/45R17"]
+            }
+        },
+        "Volkswagen": {
+            models: ["Tiguan", "Jetta", "Atlas", "Taos", "Golf", "Arteon", "ID.4", "Passat", "Golf R", "Touareg"],
+            trims: {
+                "Tiguan": ["S", "SE", "SEL", "SEL R-Line"],
+                "Jetta": ["S", "SE", "SEL", "GLI"],
+                "Atlas": ["S", "SE", "SEL", "SEL R-Line"],
+                "Taos": ["S", "SE", "SEL"],
+                "Golf": ["S", "SE", "GTI", "R"],
+                "Arteon": ["SE", "SEL", "SEL R-Line"],
+                "ID.4": ["Pro", "Pro S", "Pro S Plus"],
+                "Passat": ["S", "SE", "SEL"],
+                "Golf R": ["Base"],
+                "Touareg": ["Base", "Executive", "SEL"]
+            },
+            tireSizes: {
+                "Tiguan": ["215/65R17", "235/55R18"],
+                "Jetta": ["205/55R16", "225/45R17"],
+                "Atlas": ["245/60R18", "265/45R21"],
+                "Taos": ["215/60R17", "215/55R18"],
+                "Golf": ["205/55R16", "225/40R18"],
+                "Arteon": ["245/45R18", "245/40R19"],
+                "ID.4": ["235/55R19", "255/50R20"],
+                "Passat": ["215/60R16", "235/45R18"],
+                "Golf R": ["235/35R19"],
+                "Touareg": ["255/55R19", "285/45R20"]
+            }
+        },
+        "Volvo": {
+            models: ["XC90", "XC60", "XC40", "S90", "S60", "V90", "V60", "C40", "XC40 Recharge"],
+            trims: {
+                "XC90": ["Momentum", "R-Design", "Inscription"],
+                "XC60": ["Momentum", "R-Design", "Inscription"],
+                "XC40": ["Momentum", "R-Design", "Inscription"],
+                "S90": ["Momentum", "R-Design", "Inscription"],
+                "S60": ["Momentum", "R-Design", "Inscription"],
+                "V90": ["Momentum", "Cross Country", "Inscription"],
+                "V60": ["Momentum", "Cross Country", "Polestar"],
+                "C40": ["Core", "Plus", "Ultimate"],
+                "XC40 Recharge": ["Core", "Plus", "Ultimate"]
+            },
+            tireSizes: {
+                "XC90": ["255/50R19", "275/45R20"],
+                "XC60": ["235/60R18", "235/55R19"],
+                "XC40": ["235/55R18", "245/45R20"],
+                "S90": ["245/45R18", "255/40R19"],
+                "S60": ["235/45R18", "235/40R19"],
+                "V90": ["245/45R18", "255/40R19"],
+                "V60": ["235/45R18", "235/40R19"],
+                "C40": ["235/55R18", "245/45R20"],
+                "XC40 Recharge": ["235/55R18", "245/45R20"]
+            }
+        }
+    };
+
+    const yearSelect = document.getElementById('yearSelect');
+    const makeSelect = document.getElementById('makeSelect');
+    const modelSelect = document.getElementById('modelSelect');
+    const trimSelect = document.getElementById('trimSelect');
+    const tireSizeSelect = document.getElementById('tireSizeSelect');
+    const seasonSelect = document.getElementById('seasonSelect');
+    
+    const modelSearch = document.getElementById('modelSearch');
+    const trimSearch = document.getElementById('trimSearch');
+    const tireSizeSearch = document.getElementById('tireSizeSearch');
+    
+    const modelDropdown = document.getElementById('modelDropdown');
+    const trimDropdown = document.getElementById('trimDropdown');
+    const tireSizeDropdown = document.getElementById('tireSizeDropdown');
+
+    // Clear buttons
+    const clearYear = document.getElementById('clearYear');
+    const clearMake = document.getElementById('clearMake');
+    const clearModel = document.getElementById('clearModel');
+    const clearTrim = document.getElementById('clearTrim');
+    const clearTireSize = document.getElementById('clearTireSize');
+    const clearSeason = document.getElementById('clearSeason');
+
+    let currentAvailableModels = [];
+    let currentAvailableTrims = [];
+    let currentAvailableTireSizes = [];
+    let highlightedIndex = -1;
+
+    // Initialization
+    function init() {
+        const currentYear = new Date().getFullYear();
+        yearSelect.add(new Option('Select Year', ''));
+        for (let year = currentYear; year >= 1948; year--) {
+            yearSelect.add(new Option(year, year));
+        }
+        yearSelect.value = '2025';
+
+        const makes = Object.keys(vehicleData).sort();
+        makeSelect.add(new Option('Select Make', ''));
+        makes.forEach(make => makeSelect.add(new Option(make, make)));
+        
+        // Default View
+        updateVehiclePreview('', '', '', '');
+        
+        // Setup search functionality
+        setupSearchableSelect(modelSelect, modelSearch, modelDropdown, 'model');
+        setupSearchableSelect(trimSelect, trimSearch, trimDropdown, 'trim');
+        setupSearchableSelect(tireSizeSelect, tireSizeSearch, tireSizeDropdown, 'tireSize');
+        
+        // Setup clear button functionality
+        setupClearButtons();
+        
+        // Initial update of clear button visibility
+        updateClearButtonVisibility();
+    }
+
+    function setupClearButtons() {
+        // Year clear
+        clearYear.addEventListener('click', function(e) {
+            e.stopPropagation();
+            yearSelect.value = '';
+            updateClearButtonVisibility();
+            updateVehiclePreview(makeSelect.value, modelSelect.value, trimSelect.value, tireSizeSelect.value);
+        });
+
+        // Make clear
+        clearMake.addEventListener('click', function(e) {
+            e.stopPropagation();
+            makeSelect.value = '';
+            populateModels('');
+            updateClearButtonVisibility();
+            updateVehiclePreview('', '', '', '');
+        });
+
+        // Model clear
+        clearModel.addEventListener('click', function(e) {
+            e.stopPropagation();
+            modelSelect.innerHTML = '<option value="">Select Model</option>';
+            populateTrims(makeSelect.value, '');
+            hideSearchInput(modelSearch, modelDropdown);
+            updateClearButtonVisibility();
+            updateVehiclePreview(makeSelect.value, '', '', '');
+        });
+
+        // Trim clear
+        clearTrim.addEventListener('click', function(e) {
+            e.stopPropagation();
+            trimSelect.innerHTML = '<option value="">Select Trim</option>';
+            populateTireSizes(makeSelect.value, modelSelect.value, '');
+            hideSearchInput(trimSearch, trimDropdown);
+            updateClearButtonVisibility();
+            updateVehiclePreview(makeSelect.value, modelSelect.value, '', '');
+        });
+
+        // Tire Size clear
+        clearTireSize.addEventListener('click', function(e) {
+            e.stopPropagation();
+            tireSizeSelect.innerHTML = '<option value="">Select Tire Size</option>';
+            hideSearchInput(tireSizeSearch, tireSizeDropdown);
+            updateClearButtonVisibility();
+            updateVehiclePreview(makeSelect.value, modelSelect.value, trimSelect.value, '');
+        });
+
+        // Season clear
+        clearSeason.addEventListener('click', function(e) {
+            e.stopPropagation();
+            seasonSelect.value = 'All Tires';
+            updateClearButtonVisibility();
+        });
+
+        // Listen for changes to update clear button visibility
+        yearSelect.addEventListener('change', updateClearButtonVisibility);
+        makeSelect.addEventListener('change', updateClearButtonVisibility);
+        modelSelect.addEventListener('change', updateClearButtonVisibility);
+        trimSelect.addEventListener('change', updateClearButtonVisibility);
+        tireSizeSelect.addEventListener('change', updateClearButtonVisibility);
+        seasonSelect.addEventListener('change', updateClearButtonVisibility);
+    }
+
+    function updateClearButtonVisibility() {
+        // Show/hide clear buttons based on whether the field has a value
+        clearYear.style.display = yearSelect.value && yearSelect.value !== '' ? 'flex' : 'none';
+        clearMake.style.display = makeSelect.value && makeSelect.value !== '' ? 'flex' : 'none';
+        clearModel.style.display = modelSelect.value && modelSelect.value !== '' ? 'flex' : 'none';
+        clearTrim.style.display = trimSelect.value && trimSelect.value !== '' ? 'flex' : 'none';
+        clearTireSize.style.display = tireSizeSelect.value && tireSizeSelect.value !== '' ? 'flex' : 'none';
+        clearSeason.style.display = seasonSelect.value && seasonSelect.value !== 'All Tires' ? 'flex' : 'none';
+    }
+
+    function setupSearchableSelect(selectElement, searchInput, dropdown, type) {
+        // Show search input when select is clicked
+        selectElement.addEventListener('focus', function() {
+            if (this.value === '') {
+                searchInput.classList.add('active');
+                dropdown.classList.add('active');
+                searchInput.focus();
+                updateDropdownOptions(searchInput, dropdown, type);
+            }
+        });
+
+        // Handle search input
+        searchInput.addEventListener('input', function() {
+            updateDropdownOptions(this, dropdown, type);
+            highlightedIndex = -1;
+        });
+
+        // Handle keyboard navigation
+        searchInput.addEventListener('keydown', function(e) {
+            const options = dropdown.querySelectorAll('.dropdown-option:not(.create-option)');
+            
+            switch(e.key) {
+                case 'ArrowDown':
+                    e.preventDefault();
+                    highlightedIndex = Math.min(highlightedIndex + 1, options.length - 1);
+                    updateHighlightedOption(options);
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    highlightedIndex = Math.max(highlightedIndex - 1, 0);
+                    updateHighlightedOption(options);
+                    break;
+                case 'Enter':
+                    e.preventDefault();
+                    if (highlightedIndex >= 0 && highlightedIndex < options.length) {
+                        options[highlightedIndex].click();
+                    } else if (dropdown.querySelector('.create-option')) {
+                        dropdown.querySelector('.create-option').click();
+                    }
+                    break;
+                case 'Escape':
+                    hideSearchInput(searchInput, dropdown);
+                    break;
+            }
+        });
+
+        // Hide search when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!selectElement.parentElement.contains(e.target)) {
+                hideSearchInput(searchInput, dropdown);
+            }
+        });
+    }
+
+    function updateDropdownOptions(searchInput, dropdown, type) {
+        const searchTerm = searchInput.value.toLowerCase();
+        let availableOptions = [];
+        
+        // Get available options based on type
+        if (type === 'model') {
+            availableOptions = currentAvailableModels;
+        } else if (type === 'trim') {
+            availableOptions = currentAvailableTrims;
+        } else if (type === 'tireSize') {
+            availableOptions = currentAvailableTireSizes;
+        }
+
+        // Filter options
+        const filteredOptions = availableOptions.filter(option => 
+            option.toLowerCase().includes(searchTerm)
+        );
+
+        // Clear dropdown
+        dropdown.innerHTML = '';
+
+        if (filteredOptions.length === 0 && searchTerm.length > 0) {
+            // No results found, show option to create custom
+            const noResults = document.createElement('div');
+            noResults.className = 'no-results';
+            noResults.textContent = `No ${type} found for "${searchTerm}"`;
+            dropdown.appendChild(noResults);
+            
+            const createOption = document.createElement('div');
+            createOption.className = 'create-option';
+            createOption.textContent = `Use "${searchTerm}" as custom ${type}`;
+            createOption.onclick = function() {
+                selectCustomOption(searchInput.value, searchInput, dropdown, type);
+            };
+            dropdown.appendChild(createOption);
+        } else {
+            // Show filtered results
+            filteredOptions.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'dropdown-option';
+                optionElement.textContent = option;
+                optionElement.onclick = function() {
+                    selectOption(option, searchInput, dropdown, type);
+                };
+                dropdown.appendChild(optionElement);
+            });
+        }
+    }
+
+    function updateHighlightedOption(options) {
+        options.forEach((option, index) => {
+            if (index === highlightedIndex) {
+                option.classList.add('highlighted');
+                option.scrollIntoView({ block: 'nearest' });
+            } else {
+                option.classList.remove('highlighted');
+            }
+        });
+    }
+
+    function selectOption(value, searchInput, dropdown, type) {
+        if (type === 'model') {
+            modelSelect.innerHTML = '';
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = value;
+            modelSelect.appendChild(option);
+            populateTrims(makeSelect.value, value);
+        } else if (type === 'trim') {
+            trimSelect.innerHTML = '';
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = value;
+            trimSelect.appendChild(option);
+            populateTireSizes(makeSelect.value, modelSelect.value, value);
+        } else if (type === 'tireSize') {
+            tireSizeSelect.innerHTML = '';
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = value;
+            tireSizeSelect.appendChild(option);
+            updateVehiclePreview(makeSelect.value, modelSelect.value, trimSelect.value, value);
+        }
+        hideSearchInput(searchInput, dropdown);
+        updateClearButtonVisibility();
+    }
+
+    function selectCustomOption(value, searchInput, dropdown, type) {
+        if (type === 'model') {
+            modelSelect.innerHTML = '';
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = `${value} (Custom)`;
+            option.classList.add('custom-option');
+            modelSelect.appendChild(option);
+            populateTrims(makeSelect.value, null);
+        } else if (type === 'trim') {
+            trimSelect.innerHTML = '';
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = `${value} (Custom)`;
+            option.classList.add('custom-option');
+            trimSelect.appendChild(option);
+            populateTireSizes(makeSelect.value, modelSelect.value, null);
+        } else if (type === 'tireSize') {
+            tireSizeSelect.innerHTML = '';
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = `${value} (Custom)`;
+            option.classList.add('custom-option');
+            tireSizeSelect.appendChild(option);
+            updateVehiclePreview(makeSelect.value, modelSelect.value, trimSelect.value, value);
+        }
+        hideSearchInput(searchInput, dropdown);
+        updateClearButtonVisibility();
+    }
+
+    function hideSearchInput(searchInput, dropdown) {
+        searchInput.classList.remove('active');
+        dropdown.classList.remove('active');
+        searchInput.value = '';
+        highlightedIndex = -1;
+    }
+
+    function populateModels(make) {
+        modelSelect.innerHTML = '<option value="">Select Model</option>';
+        trimSelect.innerHTML = '<option value="">Select Trim</option>';
+        tireSizeSelect.innerHTML = '<option value="">Select Tire Size</option>';
+        
+        if (make && vehicleData[make]) {
+            currentAvailableModels = vehicleData[make].models;
+            vehicleData[make].models.forEach(model => {
+                const option = document.createElement('option');
+                option.value = model;
+                option.textContent = model;
+                modelSelect.appendChild(option);
+            });
+        }
+        updateVehiclePreview(make, '', '', '');
+        updateClearButtonVisibility();
+    }
+
+    function populateTrims(make, model) {
+        trimSelect.innerHTML = '<option value="">Select Trim</option>';
+        tireSizeSelect.innerHTML = '<option value="">Select Tire Size</option>';
+        
+        if (make && model && vehicleData[make].trims[model]) {
+            currentAvailableTrims = vehicleData[make].trims[model];
+            vehicleData[make].trims[model].forEach(trim => {
+                const option = document.createElement('option');
+                option.value = trim;
+                option.textContent = trim;
+                trimSelect.appendChild(option);
+            });
+        } else {
+            currentAvailableTrims = [];
+        }
+        updateVehiclePreview(make, model, '', '');
+        updateClearButtonVisibility();
+    }
+
+    function populateTireSizes(make, model, trim) {
+        tireSizeSelect.innerHTML = '<option value="">Select Tire Size</option>';
+        
+        if (make && model && vehicleData[make].tireSizes[model]) {
+            currentAvailableTireSizes = vehicleData[make].tireSizes[model];
+            vehicleData[make].tireSizes[model].forEach(size => {
+                const option = document.createElement('option');
+                option.value = size;
+                option.textContent = size;
+                tireSizeSelect.appendChild(option);
+            });
+        } else {
+            currentAvailableTireSizes = [];
+        }
+        updateVehiclePreview(make, model, trim, '');
+        updateClearButtonVisibility();
+    }
+
+    function updateVehiclePreview(make, model, trim, tireSize) {
+        const year = yearSelect.value || '';
+        const nameEl = document.querySelector('.vehicle-name');
+        const specEl = document.querySelector('.vehicle-specs');
+        
+        if (make && model && trim) {
+            nameEl.textContent = `${year} ${make} ${model} ${trim}`;
+            specEl.textContent = tireSize || 'Please select a tire size';
+        } else if (make) {
+            nameEl.textContent = `${year} ${make}`;
+            specEl.textContent = 'Select model and trim';
+        } else {
+            nameEl.textContent = 'Select your vehicle';
+            specEl.textContent = 'Choose year, make, model, and trim';
+        }
+    }
+
+    // Events
+    makeSelect.addEventListener('change', (e) => populateModels(e.target.value));
+    modelSelect.addEventListener('change', (e) => populateTrims(makeSelect.value, e.target.value));
+    trimSelect.addEventListener('change', (e) => populateTireSizes(makeSelect.value, modelSelect.value, e.target.value));
+    tireSizeSelect.addEventListener('change', (e) => {
+        updateVehiclePreview(makeSelect.value, modelSelect.value, trimSelect.value, e.target.value);
+    });
+    yearSelect.addEventListener('change', () => {
+        updateVehiclePreview(makeSelect.value, modelSelect.value, trimSelect.value, tireSizeSelect.value);
+    });
+
+    init();
+</script>
+</body>
+</html>

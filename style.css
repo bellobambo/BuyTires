@@ -1,0 +1,414 @@
+/* =========================
+   CSS VARIABLES
+========================= */
+:root {
+  --primary-theme: #02c5f6;
+  --btn-shadow: #01a2cc;
+  --selection-blue: #005bc5;
+  --text-gray: #666;
+  --border-light: #e0e0e0;
+  --staggered-orange: #f7941d;
+}
+
+/* =========================
+   RESET & BASE
+========================= */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background-color: #f5f5f5;
+  margin: 0;
+  padding: 20px;
+  min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+.toggle-btn {
+  background-color: var(--primary-theme);
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 var(--btn-shadow);
+  transition: all 0.2s;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.toggle-btn:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 0 var(--btn-shadow);
+}
+
+.toggle-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--btn-shadow);
+}
+
+.toggle-btn.hidden {
+  display: none;
+}
+
+/* =========================
+   SEARCH SECTION / MODAL
+========================= */
+.search-section {
+  display: none;
+  width: 100%;
+  max-width: 820px;
+}
+
+.search-section.active {
+  display: block;
+}
+
+.container {
+  position: relative;
+  background: #fff;
+  width: 100%;
+  max-width: 700px;
+  padding: 25px;
+  border-radius: 8px;
+  border: 1px solid var(--border-light);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  border: none;
+
+  background: var(--primary-theme);
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 10001;
+}
+
+/* =========================
+   HEADER
+========================= */
+.powered-by {
+  position: absolute;
+  top: 10px;
+  right: 50px;
+  font-size: 11px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.powered-by strong {
+  color: #333;
+}
+
+.powered-by span {
+  color: var(--primary-theme);
+}
+
+.search-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 12px 25px;
+  margin-bottom: 30px;
+
+  background-color: #f0fbfe;
+  border: 1px solid #cceef7;
+  border-radius: 4px;
+}
+
+.search-header h2 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--primary-theme);
+}
+
+/* =========================
+   SELECT INPUT
+========================= */
+.search-type-select {
+  width: 200px;
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  cursor: pointer;
+  appearance: none;
+
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' width='292.4' height='292.4'%3E%3Cpath fill='%23666' d='M287 69.4a17.6 17.6 0 0 0-13-5.4H18.4c-5 0-9.3 1.8-12.9 5.4A17.6 17.6 0 0 0 0 82.2c0 5 1.8 9.3 5.4 12.9l128 127.9c3.6 3.6 7.8 5.4 12.8 5.4s9.2-1.8 12.8-5.4L287 95c3.5-3.5 5.4-7.8 5.4-12.8 0-5-1.9-9.2-5.5-12.8z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 10px;
+}
+
+/* =========================
+   GRID LAYOUT
+========================= */
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: start;
+}
+
+
+
+/* Mobile */
+@media (max-width: 768px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+/* =========================
+   FORMS
+========================= */
+.form-side {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+
+/* =========================
+   UNIFORM WIDTH STYLING
+========================= */
+.form-row {
+  display: flex;
+  flex-direction: column; /* Stacks label above input for uniform alignment */
+  margin-bottom: 6px;
+  width: 100%;
+  max-width: 480px;
+}
+
+.select-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.form-row label {
+  margin-bottom: 5px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #444;
+}
+
+.form-row select {
+  width: 100%; /* Makes all selects occupy the full width of the container */
+  max-width: 400px; /* Adjust this value to your preferred fixed width */
+  padding: 10px;
+  font-size: 16px;
+  color: #333;
+  
+  /* Glossy Background from previous step */
+  background: linear-gradient(to bottom, #ffffff 0%, #f1f1f1 50%, #e1e1e1 51%, #f6f6f6 100%);
+  border: 1px solid #999;
+  border-radius: 8px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1), 0 1px 0 rgba(255,255,255,0.8);
+  
+  /* Dropdown Arrow */
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%23000' d='M0 2.5l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 10px;
+  outline: none;
+}
+
+
+
+
+/* Hover state for better UX */
+.form-row select:hover {
+  border-color: #666;
+  background: linear-gradient(to bottom, #ffffff 0%, #f9f9f9 50%, #eaeaea 51%, #ffffff 100%);
+}
+
+/* =========================
+   SEARCHABLE DROPDOWN
+========================= */
+.searchable-select {
+  position: relative;
+  width: 100%;
+}
+
+.search-input {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  padding: 9px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background: #fff;
+  display: none;
+}
+
+.search-input.active {
+  display: block;
+}
+
+.dropdown-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+
+  max-height: 200px;
+  overflow-y: auto;
+
+  background: #fff;
+  border: 1px solid #ccc;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+
+  display: none;
+  z-index: 100;
+}
+
+.dropdown-options.active {
+  display: block;
+}
+
+.dropdown-option {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.dropdown-option:hover {
+  background: #f0f0f0;
+}
+
+/* =========================
+   VEHICLE PREVIEW
+========================= */
+.vehicle-preview {
+  width: 100%;
+  display: flex;
+  align-items: flex-start; /* Aligns image to top */
+  justify-content: center;
+  margin-top: 0;
+}
+
+.tire-size-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin-top: 0;
+}
+
+/* =========================
+   STAGGERED FORM
+========================= */
+/* =========================
+   BLUE THEME FOR STAGGERED FORM
+========================= */
+.staggered-title {
+  margin: 0 0 15px 0; /* Zero top margin to match the image's top edge */
+  padding: 0;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--primary-theme);
+  text-decoration: underline;
+  cursor: pointer;
+  display: inline-block;
+  line-height: 1; /* Tightens the text box */
+}
+
+.staggered-title:hover {
+  color: var(--selection-blue);
+}
+
+/* Ensure the staggered container starts at the same height as the image */
+#staggeredContainer {
+  padding-top: 0;
+  margin-top: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Adjust grid alignment for size mode */
+.search-section.size-mode .content-grid {
+  grid-template-columns: 1fr 1fr; /* Equal columns often align better with this image */
+  align-items: start;
+}
+
+.staggered-form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding-top: 0; /* Ensures no internal space at top */
+  margin-top: 0;
+}
+
+
+
+/* =========================
+   SEARCH BUTTON
+========================= */
+.search-btn {
+  grid-column: 1 / -1;
+  margin: 30px auto 0;
+  min-width: 240px;
+
+  background: var(--primary-theme);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 12px 20px;
+
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  cursor: pointer;
+  box-shadow: 0 4px 0 var(--btn-shadow);
+}
+
+.search-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--btn-shadow);
+}

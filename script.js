@@ -295,9 +295,11 @@ const els = {
   searchBtn: document.getElementById("searchBtn"),
 };
 
-// 1. Initial State: Hide the image on page load
+// 1. Initial State: Hide the image on page load and reset search type
 document.addEventListener("DOMContentLoaded", () => {
   els.tireImage.style.display = "none";
+  // Reset search type to show placeholder
+  els.searchType.value = '';
 });
 
 els.searchType.addEventListener("change", function () {
@@ -337,19 +339,72 @@ els.searchType.addEventListener("change", function () {
     updateVehiclePreview();
   }
 });
+
 // Modal Logic
 const toggleBtn = document.getElementById("button1");
 const searchSection = document.getElementById("searchSection");
 const closeModal = document.getElementById("closeModal");
 
+// When opening the modal, reset everything
 toggleBtn.addEventListener("click", () => {
   toggleBtn.classList.add("hidden");
   searchSection.classList.add("active");
+  
+  // Reset the search type select to show placeholder
+  els.searchType.value = '';
+  
+  // Reset all form fields
+  els.year.value = '';
+  els.make.value = '';
+  els.model.value = '';
+  els.trim.value = '';
+  els.tireSize.value = '';
+  els.season.value = 'All Tires';
+  
+  // Reset search inputs
+  els.modelSearch.value = '';
+  els.trimSearch.value = '';
+  els.tireSizeSearch.value = '';
+  
+  // Hide dropdowns
+  els.modelDropdown.classList.remove('active');
+  els.trimDropdown.classList.remove('active');
+  els.tireSizeDropdown.classList.remove('active');
+  
+  // Reset model, trim, and tire size options
+  modelSearchable.reset();
+  trimSearchable.reset();
+  tireSizeSearchable.reset();
+  
+  // Hide staggered container if visible
+  const staggeredContainer = document.getElementById('staggeredContainer');
+  if (staggeredContainer) {
+    staggeredContainer.style.display = 'none';
+  }
+  
+  // Show all form rows
+  document.querySelectorAll(".form-side > .form-row").forEach((row) => {
+    row.style.display = "flex";
+  });
+  
+  // Hide tire image
+  els.tireImage.style.display = 'none';
+  
+  // Remove size-mode class
+  document.querySelector('.search-section').classList.remove('size-mode');
 });
 
+// When closing the modal, reset search type
 closeModal.addEventListener("click", () => {
   searchSection.classList.remove("active");
   toggleBtn.classList.remove("hidden");
+  // Reset search type when closing
+  els.searchType.value = '';
+});
+
+// Reset on page load (in case page is refreshed with modal open)
+window.addEventListener('load', function() {
+  els.searchType.value = '';
 });
 
 // Populate Years

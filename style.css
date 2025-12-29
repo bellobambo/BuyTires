@@ -74,7 +74,7 @@ body {
 .search-section {
   display: none;
   width: 100%;
-  max-width: 820px;
+  max-width: 1000px; /* Increased from 820px */
 }
 
 .search-section.active {
@@ -85,7 +85,6 @@ body {
   position: relative;
   background: #fff;
   width: 100%;
-  max-width: 700px;
   padding: 25px;
   border-radius: 8px;
   border: 1px solid var(--border-light);
@@ -175,16 +174,43 @@ body {
 }
 
 /* =========================
-   GRID LAYOUT
+   GRID LAYOUT - UPDATED FOR SIDE-BY-SIDE
 ========================= */
 .content-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 40px;
-  align-items: start;
+  grid-template-columns: 1fr 1fr; /* Two equal columns */
+  gap: 40px; /* Increased gap for better spacing */
+  align-items: center;
 }
 
+.form-side {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
 
+/* Vehicle preview/image takes the entire second column */
+.vehicle-preview {
+  grid-column: 2;
+  grid-row: 1 / span 2; /* Span both form sections */
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.tire-size-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  max-width: 100%;
+}
+
+/* Staggered container in the second column, first row */
+#staggeredContainer {
+  grid-column: 2;
+  grid-row: 1;
+  margin-bottom: 20px;
+}
 
 /* Mobile */
 @media (max-width: 768px) {
@@ -192,27 +218,26 @@ body {
     grid-template-columns: 1fr;
     gap: 20px;
   }
+  
+  .vehicle-preview {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  
+  #staggeredContainer {
+    grid-column: 1;
+    grid-row: auto;
+  }
 }
-
-/* =========================
-   FORMS
-========================= */
-.form-side {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-
 
 /* =========================
    UNIFORM WIDTH STYLING
 ========================= */
 .form-row {
   display: flex;
-  flex-direction: column; /* Stacks label above input for uniform alignment */
-  margin-bottom: 6px;
+  flex-direction: column;
+  margin-bottom: 0;
   width: 100%;
-  max-width: 480px;
 }
 
 .select-wrapper {
@@ -230,19 +255,16 @@ body {
 }
 
 .form-row select {
-  width: 100%; /* Makes all selects occupy the full width of the container */
-  max-width: 400px; /* Adjust this value to your preferred fixed width */
+  width: 100%;
   padding: 10px;
   font-size: 16px;
   color: #333;
   
-  /* Glossy Background from previous step */
   background: linear-gradient(to bottom, #ffffff 0%, #f1f1f1 50%, #e1e1e1 51%, #f6f6f6 100%);
   border: 1px solid #999;
   border-radius: 8px;
   box-shadow: inset 0 1px 3px rgba(0,0,0,0.1), 0 1px 0 rgba(255,255,255,0.8);
   
-  /* Dropdown Arrow */
   appearance: none;
   -webkit-appearance: none;
   background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%23000' d='M0 2.5l5 5 5-5z'/%3E%3C/svg%3E");
@@ -251,9 +273,6 @@ body {
   background-size: 10px;
   outline: none;
 }
-
-
-
 
 /* Hover state for better UX */
 .form-row select:hover {
@@ -316,31 +335,10 @@ body {
 }
 
 /* =========================
-   VEHICLE PREVIEW
-========================= */
-.vehicle-preview {
-  width: 100%;
-  display: flex;
-  align-items: flex-start; /* Aligns image to top */
-  justify-content: center;
-  margin-top: 0;
-}
-
-.tire-size-img {
-  width: 100%;
-  height: auto;
-  display: block;
-  margin-top: 0;
-}
-
-/* =========================
-   STAGGERED FORM
-========================= */
-/* =========================
    BLUE THEME FOR STAGGERED FORM
 ========================= */
 .staggered-title {
-  margin: 0 0 15px 0; /* Zero top margin to match the image's top edge */
+  margin: 0 0 15px 0;
   padding: 0;
   font-size: 12px;
   font-weight: 800;
@@ -350,14 +348,13 @@ body {
   text-decoration: underline;
   cursor: pointer;
   display: inline-block;
-  line-height: 1; /* Tightens the text box */
+  line-height: 1;
 }
 
 .staggered-title:hover {
   color: var(--selection-blue);
 }
 
-/* Ensure the staggered container starts at the same height as the image */
 #staggeredContainer {
   padding-top: 0;
   margin-top: 0;
@@ -365,21 +362,14 @@ body {
   flex-direction: column;
 }
 
-/* Adjust grid alignment for size mode */
-.search-section.size-mode .content-grid {
-  grid-template-columns: 1fr 1fr; /* Equal columns often align better with this image */
-  align-items: start;
-}
-
 .staggered-form {
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding-top: 0; /* Ensures no internal space at top */
+  padding-top: 0;
   margin-top: 0;
+  gap: 15px;
 }
-
-
 
 /* =========================
    SEARCH BUTTON

@@ -227,28 +227,31 @@ body {
   }
 }
 
-/* =========================
-   UNIFORM WIDTH STYLING
-========================= */
 .form-row {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 0;
-  width: 100%;
+    display: flex;
+    flex-direction: row; /* Align horizontal */
+    align-items: center; /* Center label with input vertically */
+    justify-content: space-between;
+    margin-bottom: 12px;
+    width: 100%;
+    gap: 10px;
 }
 
+.form-row select, 
 .select-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
+    flex: 1; /* Input takes remaining space */
+    width: auto;
 }
+
+
 
 .form-row label {
-  margin-bottom: 5px;
-  font-size: 14px;
-  font-weight: 700;
-  color: #444;
+    flex: 0 0 70px; 
+    margin-bottom: 0; 
+    font-size: 13px;
+    font-weight: 700;
+    color: #444;
+    white-space: nowrap;
 }
 
 .form-row select {
@@ -442,11 +445,12 @@ body {
     color: var(--selection-blue);
 }
 
-/* Asterisk follows Primary Theme */
-.asterisk {
+/* .asterisk {
     color: var(--primary-theme);
     font-weight: bold;
-}
+    margin-left: 4px; 
+    display: inline-block;
+} */
 
 /* Greyed out background for Rear selects as seen in image */
 .disabled-select {
@@ -455,8 +459,9 @@ body {
     color: #999 !important;
 }
 
-.season-full-width {
-    margin-top: 10px;
+
+.season-full-width label {
+    flex: 0 0 70px; /* Keep same alignment as columns above */
 }
 
 .extra-options-container {

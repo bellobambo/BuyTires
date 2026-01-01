@@ -284,22 +284,25 @@ const els = {
   season: document.getElementById("seasonSelect"),
   searchType: document.getElementById("searchTypeSelect"),
   tireImage: document.getElementById("tireSizeImage"),
+  vehicleImage: document.getElementById("vehicleImage"),
+
   modelSearch: document.getElementById("modelSearch"),
   trimSearch: document.getElementById("trimSearch"),
   tireSizeSearch: document.getElementById("tireSizeSearch"),
+
   modelDropdown: document.getElementById("modelDropdown"),
   trimDropdown: document.getElementById("trimDropdown"),
   tireSizeDropdown: document.getElementById("tireSizeDropdown"),
+
   vehicleName: document.getElementById("vehicleName"),
   vehicleSpecs: document.getElementById("vehicleSpecs"),
   searchBtn: document.getElementById("searchBtn"),
 };
 
-// 1. Initial State: Hide the image on page load and reset search type
 document.addEventListener("DOMContentLoaded", () => {
   els.tireImage.style.display = "none";
-  // Reset search type to show placeholder
-  els.searchType.value = '';
+  els.vehicleImage.style.display = "none";
+  els.searchType.value = "";
 });
 
 els.searchType.addEventListener("change", function () {
@@ -309,34 +312,29 @@ els.searchType.addEventListener("change", function () {
   if (this.value === "size") {
     container.classList.add("size-mode");
     els.tireImage.style.display = "block";
+    els.vehicleImage.style.display = "none";
 
-    // Hide standard vehicle rows
     document.querySelectorAll(".form-side > .form-row").forEach((row) => {
       row.style.display = "none";
     });
 
-    // Render Staggered Form
     if (window.renderTireSizeForm) {
       window.renderTireSizeForm("staggeredContainer");
     }
-    
-    if (staggeredContainer) {
-      staggeredContainer.style.display = "block";
-    }
-    
+
+    if (staggeredContainer) staggeredContainer.style.display = "block";
   } else if (this.value === "vehicle") {
     container.classList.remove("size-mode");
     els.tireImage.style.display = "none";
 
-    // Show standard vehicle rows
     document.querySelectorAll(".form-side > .form-row").forEach((row) => {
       row.style.display = "flex";
     });
 
-    if (staggeredContainer) {
-      staggeredContainer.style.display = "none";
-    }
+    if (staggeredContainer) staggeredContainer.style.display = "none";
+
     updateVehiclePreview();
+    updateVehicleImage();
   }
 });
 
@@ -349,49 +347,49 @@ const closeModal = document.getElementById("closeModal");
 toggleBtn.addEventListener("click", () => {
   toggleBtn.classList.add("hidden");
   searchSection.classList.add("active");
-  
+
   // Reset the search type select to show placeholder
-  els.searchType.value = '';
-  
+  els.searchType.value = "";
+
   // Reset all form fields
-  els.year.value = '';
-  els.make.value = '';
-  els.model.value = '';
-  els.trim.value = '';
-  els.tireSize.value = '';
-  els.season.value = 'All Tires';
-  
+  els.year.value = "";
+  els.make.value = "";
+  els.model.value = "";
+  els.trim.value = "";
+  els.tireSize.value = "";
+  els.season.value = "All Tires";
+
   // Reset search inputs
-  els.modelSearch.value = '';
-  els.trimSearch.value = '';
-  els.tireSizeSearch.value = '';
-  
+  els.modelSearch.value = "";
+  els.trimSearch.value = "";
+  els.tireSizeSearch.value = "";
+
   // Hide dropdowns
-  els.modelDropdown.classList.remove('active');
-  els.trimDropdown.classList.remove('active');
-  els.tireSizeDropdown.classList.remove('active');
-  
+  els.modelDropdown.classList.remove("active");
+  els.trimDropdown.classList.remove("active");
+  els.tireSizeDropdown.classList.remove("active");
+
   // Reset model, trim, and tire size options
   modelSearchable.reset();
   trimSearchable.reset();
   tireSizeSearchable.reset();
-  
+
   // Hide staggered container if visible
-  const staggeredContainer = document.getElementById('staggeredContainer');
+  const staggeredContainer = document.getElementById("staggeredContainer");
   if (staggeredContainer) {
-    staggeredContainer.style.display = 'none';
+    staggeredContainer.style.display = "none";
   }
-  
+
   // Show all form rows
   document.querySelectorAll(".form-side > .form-row").forEach((row) => {
     row.style.display = "flex";
   });
-  
+
   // Hide tire image
-  els.tireImage.style.display = 'none';
-  
+  els.tireImage.style.display = "none";
+
   // Remove size-mode class
-  document.querySelector('.search-section').classList.remove('size-mode');
+  document.querySelector(".search-section").classList.remove("size-mode");
 });
 
 // When closing the modal, reset search type
@@ -399,12 +397,12 @@ closeModal.addEventListener("click", () => {
   searchSection.classList.remove("active");
   toggleBtn.classList.remove("hidden");
   // Reset search type when closing
-  els.searchType.value = '';
+  els.searchType.value = "";
 });
 
 // Reset on page load (in case page is refreshed with modal open)
-window.addEventListener('load', function() {
-  els.searchType.value = '';
+window.addEventListener("load", function () {
+  els.searchType.value = "";
 });
 
 // Populate Years
@@ -426,79 +424,65 @@ Object.keys(vehicleData)
     els.make.appendChild(opt);
   });
 
-function setupSearchableSelect(selectEl, searchEl, dropdownEl, options) {
-  let currentOptions = options || [];
-  selectEl.addEventListener("click", () => {
-    if (currentOptions.length > 0) {
-      searchEl.classList.add("active");
-      searchEl.focus();
-      showDropdown(currentOptions);
-    }
-  });
-
-  searchEl.addEventListener("input", (e) => {
-    const query = e.target.value.toLowerCase();
-    const filtered = currentOptions.filter((opt) =>
-      opt.toLowerCase().includes(query)
-    );
-    showDropdown(filtered, query);
-  });
-
-  searchEl.addEventListener("blur", () => {
-    setTimeout(() => {
-      searchEl.classList.remove("active");
-      dropdownEl.classList.remove("active");
-    }, 200);
-  });
+function setupSearchableSelect(selectEl, searchEl, dropdownEl, options = []) {
+  let currentOptions = options;
 
   function showDropdown(opts, query = "") {
     dropdownEl.innerHTML = "";
-    if (opts.length === 0 && query) {
-      const createEl = document.createElement("div");
-      createEl.className = "dropdown-option";
-      createEl.textContent = `Custom: "${query}"`;
-      createEl.onclick = () => selectOption(query, true);
-      dropdownEl.appendChild(createEl);
+
+    if (!opts.length && query) {
+      const div = document.createElement("div");
+      div.className = "dropdown-option";
+      div.textContent = `Custom: "${query}"`;
+      div.onclick = () => selectOption(query);
+      dropdownEl.appendChild(div);
     } else {
       opts.forEach((opt) => {
-        const optEl = document.createElement("div");
-        optEl.className = "dropdown-option";
-        optEl.textContent = opt;
-        optEl.onclick = () => selectOption(opt, false);
-        dropdownEl.appendChild(optEl);
+        const div = document.createElement("div");
+        div.className = "dropdown-option";
+        div.textContent = opt;
+        div.onclick = () => selectOption(opt);
+        dropdownEl.appendChild(div);
       });
     }
     dropdownEl.classList.add("active");
   }
 
-  function selectOption(value, isCustom) {
-    searchEl.value = "";
-    if (isCustom) {
-      const opt = document.createElement("option");
-      opt.value = value;
-      opt.textContent = value;
-      selectEl.appendChild(opt);
-    }
+  function selectOption(value) {
     selectEl.value = value;
-    searchEl.classList.remove("active");
+    searchEl.value = "";
     dropdownEl.classList.remove("active");
+    searchEl.classList.remove("active");
     selectEl.dispatchEvent(new Event("change"));
   }
 
+  searchEl.addEventListener("input", (e) => {
+    const q = e.target.value.toLowerCase();
+    showDropdown(
+      currentOptions.filter((o) => o.toLowerCase().includes(q)),
+      q
+    );
+  });
+
+  searchEl.addEventListener("blur", () => {
+    setTimeout(() => dropdownEl.classList.remove("active"), 200);
+  });
+
   return {
-    updateOptions: (newOpts) => {
+    updateOptions(newOpts) {
       currentOptions = newOpts;
-      selectEl.innerHTML = '<option value="">Select...</option>';
-      newOpts.forEach((opt) => {
-        const optEl = document.createElement("option");
-        optEl.value = opt;
-        optEl.textContent = opt;
-        selectEl.appendChild(optEl);
+      selectEl.innerHTML = `<option value="">Select...</option>`;
+      newOpts.forEach((o) => {
+        const opt = document.createElement("option");
+        opt.value = o;
+        opt.textContent = o;
+        selectEl.appendChild(opt);
       });
     },
-    reset: () => {
+    reset() {
       selectEl.value = "";
       searchEl.value = "";
+      dropdownEl.classList.remove("active");
     },
   };
 }
@@ -506,87 +490,140 @@ function setupSearchableSelect(selectEl, searchEl, dropdownEl, options) {
 const modelSearchable = setupSearchableSelect(
   els.model,
   els.modelSearch,
-  els.modelDropdown,
-  []
+  els.modelDropdown
 );
 const trimSearchable = setupSearchableSelect(
   els.trim,
   els.trimSearch,
-  els.trimDropdown,
-  []
+  els.trimDropdown
 );
 const tireSizeSearchable = setupSearchableSelect(
   els.tireSize,
   els.tireSizeSearch,
-  els.tireSizeDropdown,
-  []
+  els.tireSizeDropdown
 );
 
+/* =========================
+   MAKE CHANGE
+========================= */
 els.make.addEventListener("change", () => {
   const make = els.make.value;
-  if (make && vehicleData[make])
+
+  if (make && vehicleData[make]) {
     modelSearchable.updateOptions(vehicleData[make].models);
-  else modelSearchable.reset();
+  } else {
+    modelSearchable.reset();
+  }
+
   trimSearchable.reset();
   tireSizeSearchable.reset();
-  updateVehiclePreview();
+  resetVehicleImage();
 });
 
+/* =========================
+   MODEL CHANGE → IMAGE UPDATES HERE
+========================= */
 els.model.addEventListener("change", () => {
   const make = els.make.value;
   const model = els.model.value;
-  if (make && model && vehicleData[make]?.trims[model])
+
+  // Console log the selected make and model
+  console.log("Vehicle Selected:");
+  console.log("Make: ", make);
+  console.log("Model: ", model);
+
+  if (make && model && vehicleData[make]?.trims[model]) {
     trimSearchable.updateOptions(vehicleData[make].trims[model]);
-  else trimSearchable.reset();
+  } else {
+    trimSearchable.reset();
+  }
+
   tireSizeSearchable.reset();
-  updateVehiclePreview();
+  updateVehicleImage();
 });
 
-els.trim.addEventListener("change", () => {
-  const make = els.make.value,
-    model = els.model.value;
-  if (make && model && vehicleData[make]?.tireSizes[model])
-    tireSizeSearchable.updateOptions(vehicleData[make].tireSizes[model]);
-  updateVehiclePreview();
-});
+/* =========================
+   IMAGE LOGIC (FIXED)
+========================= */
+function updateVehicleImage() {
+  const make = els.make.value;
+  const model = els.model.value;
 
-els.year.addEventListener("change", updateVehiclePreview);
-els.tireSize.addEventListener("change", updateVehiclePreview);
+  if (!make || !model) {
+    resetVehicleImage();
+    return;
+  }
 
+  // Adding 'public/' to the path because that is where your images are stored
+  const imagePath = `public/${make} ${model}.png`;
+
+  // Console log the path being sent to the image tag
+  console.log("Rendering Image Path: ", imagePath);
+
+  els.vehicleImage.src = imagePath;
+  els.vehicleImage.style.display = "block";
+
+  // Error check: if the image file doesn't exist, log it
+  els.vehicleImage.onerror = function () {
+    console.error("Could not find image at path: ", imagePath);
+    this.style.display = "none";
+  };
+}
+
+function updateVehicleImage() {
+  const make = els.make.value;
+  const model = els.model.value;
+
+  if (!make || !model) {
+    resetVehicleImage();
+    return;
+  }
+
+  // 2. Fixed Path: Added '/public/' prefix
+  // If your HTML file is in the root and images are in /public, use this:
+  const imageName = `public/${make} ${model}.png`;
+
+  console.log("- Rendering Image Path:", imageName);
+
+  els.vehicleImage.src = imageName;
+  els.vehicleImage.style.display = "block";
+
+  // Error handling if image doesn't exist
+  els.vehicleImage.onerror = function () {
+    console.error("Failed to load image at:", imageName);
+    this.style.display = "none";
+  };
+}
+
+function resetVehicleImage() {
+  els.vehicleImage.src = "";
+  els.vehicleImage.style.display = "none";
+}
+
+/* =========================
+   VEHICLE TEXT PREVIEW
+========================= */
 function updateVehiclePreview() {
-  const year = els.year.value,
-    make = els.make.value,
-    model = els.model.value,
-    trim = els.trim.value;
-  if (els.searchType.value !== "size") {
-    if (year && make && model && trim) {
-      els.vehicleName.textContent = `${year} ${make} ${model}`;
-      els.vehicleSpecs.textContent = `${trim} • Ready to find tires`;
-    } else {
-      els.vehicleName.textContent = "Select your vehicle";
-      els.vehicleSpecs.textContent = "Choose year, make, model, and trim";
-    }
+  const { year, make, model, trim } = els;
+
+  if (
+    els.searchType.value !== "size" &&
+    year.value &&
+    make.value &&
+    model.value &&
+    trim.value
+  ) {
+    els.vehicleName.textContent = `${year.value} ${make.value} ${model.value}`;
+    els.vehicleSpecs.textContent = `${trim.value} • Ready to find tires`;
+  } else {
+    els.vehicleName.textContent = "Select your vehicle";
+    els.vehicleSpecs.textContent = "Choose year, make, model, and trim";
   }
 }
 
-document.querySelectorAll(".clear-btn").forEach((btn) => {
-  btn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    const selectEl = e.target.parentElement.querySelector("select");
-    if (selectEl) {
-      selectEl.value = "";
-      selectEl.dispatchEvent(new Event("change"));
-    }
-  });
-});
-
-[els.year, els.make, els.season].forEach((el) => {
-  el.addEventListener("change", function () {
-    const clearBtn = this.parentElement.querySelector(".clear-btn");
-    if (clearBtn) clearBtn.classList.toggle("show", this.value !== "");
-  });
-});
-
+/* =========================
+   SEARCH BUTTON
+========================= */
 els.searchBtn.addEventListener("click", () => {
-  alert("Search initiated! Check console for data.");
+  alert("Search initiated!");
 });

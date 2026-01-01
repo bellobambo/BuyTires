@@ -186,13 +186,30 @@ body {
   gap: 15px;
 }
 
-/* Vehicle preview/image takes the entire second column */
 .vehicle-preview {
   grid-column: 2;
-  grid-row: 1 / span 2; /* Span both form sections */
+  grid-row: 1 / span 2;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
+  
+  /* Set fixed dimensions for the container */
+  width: 400px; 
+  height: 350px; /* Adjust height as needed to fit your car ratios */
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+
+.vehicle-img {
+  width: 400px; /* Constant width */
+  height: 100%;
+  
+  /* 'contain' ensures the car is fully visible without stretching */
+  object-fit: contain; 
+  
+  /* Center the image within the 400px width */
+  display: block;
 }
 
 .tire-size-img {

@@ -1,17 +1,28 @@
-const express = require('express');
-const nodemailer = require('nodemailer');
-const cors = require('cors');
-const bodyParser = require('body-parser');
+const express = require("express");
+const nodemailer = require("nodemailer");
+const cors = require("cors");
+const bodyParser = require("body-parser");
 
 const app = express();
 
-// Enhanced CORS configuration - Allow all origins
-app.use(cors({
-  origin: '*',  // ✅ Allows requests from any origin
-  credentials: false,  // Set to false when using origin: '*'
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+const allowedOrigins = [
+  "https://phashdigital.wixstudio.com",
+  "https://bellobambo.github.io",
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.some((o) => origin.startsWith(o))) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type"],
+  })
+);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -23,42 +34,51 @@ app.use((req, res, next) => {
 });
 
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  service: "gmail",
   auth: {
-    user: 'bellobambo21@gmail.com',
-    pass: 'wexi ugls mrrp hhgq'
+    user: "bellobambo21@gmail.com",
+    pass: "wexi ugls mrrp hhgq",
   },
   tls: {
-    rejectUnauthorized: false
-  }
+    rejectUnauthorized: false,
+  },
 });
 
 // Test email configuration
 transporter.verify((error, success) => {
   if (error) {
-    console.error('SMTP Connection Error:', error);
+    console.error("SMTP Connection Error:", error);
   } else {
-    console.log('SMTP Server is ready to send emails');
+    console.log("SMTP Server is ready to send emails");
   }
 });
 
-app.post('/send-lead', async (req, res) => {
-  console.log('Received lead request:', req.body);
-  
-  const { name, email, phone, address, searchType, vehicleInfo, tireSize, season } = req.body;
+app.post("/send-lead", async (req, res) => {
+  console.log("Received lead request:", req.body);
+
+  const {
+    name,
+    email,
+    phone,
+    address,
+    searchType,
+    vehicleInfo,
+    tireSize,
+    season,
+  } = req.body;
 
   // Enhanced validation
   if (!name || !email || !phone) {
-    console.log('Validation failed - missing fields:', { name, email, phone });
-    return res.status(400).json({ 
-      success: false, 
-      error: 'Missing required fields: name, email, and phone are required' 
+    console.log("Validation failed - missing fields:", { name, email, phone });
+    return res.status(400).json({
+      success: false,
+      error: "Missing required fields: name, email, and phone are required",
     });
   }
 
   const mailOptions = {
     from: `"TireConnect Lead" <didier@mercymobile.tech>`,
-    to: 'didier@mercymobile.tech',  
+    to: "didier@mercymobile.tech",
     replyTo: email,
     subject: `New Lead: ${name} (${searchType})`,
     html: `
@@ -81,7 +101,9 @@ app.post('/send-lead', async (req, res) => {
           </tr>
           <tr>
             <td style="padding: 8px; border: 1px solid #ddd;"><strong>Address:</strong></td>
-            <td style="padding: 8px; border: 1px solid #ddd;">${address || 'Not provided'}</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">${
+              address || "Not provided"
+            }</td>
           </tr>
         </table>
 
@@ -113,51 +135,50 @@ app.post('/send-lead', async (req, res) => {
         </div>
       </div>
     `,
-    text: `New Lead Registration\n\nCustomer: ${name}\nEmail: ${email}\nPhone: ${phone}\nAddress: ${address}\n\nSearch Details:\nMode: ${searchType}\nVehicle: ${vehicleInfo}\nTire Size: ${tireSize}\nSeason: ${season}\n\nReceived: ${new Date().toLocaleString()}`
+    text: `New Lead Registration\n\nCustomer: ${name}\nEmail: ${email}\nPhone: ${phone}\nAddress: ${address}\n\nSearch Details:\nMode: ${searchType}\nVehicle: ${vehicleInfo}\nTire Size: ${tireSize}\nSeason: ${season}\n\nReceived: ${new Date().toLocaleString()}`,
   };
 
   try {
     const info = await transporter.sendMail(mailOptions);
-    console.log('Email sent successfully!!:', info.messageId);
-    console.log('Preview URL:', nodemailer.getTestMessageUrl(info));
-    
-    res.status(200).json({ 
-      success: true, 
-      message: 'Lead sent successfully',
-      messageId: info.messageId
+    console.log("Email sent successfully!!:", info.messageId);
+    console.log("Preview URL:", nodemailer.getTestMessageUrl(info));
+
+    res.status(200).json({
+      success: true,
+      message: "Lead sent successfully",
+      messageId: info.messageId,
     });
-    
   } catch (error) {
     console.error("Email sending error:", error);
-    res.status(500).json({ 
-      success: false, 
-      error: 'Error sending email',
-      details: error.message
+    res.status(500).json({
+      success: false,
+      error: "Error sending email",
+      details: error.message,
     });
   }
 });
 
 // Health check endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({ 
-    status: 'ok', 
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "ok",
     timestamp: new Date().toISOString(),
-    service: 'tire-lead-api'
+    service: "tire-lead-api",
   });
 });
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error('Server Error:', err.stack);
-  res.status(500).json({ 
-    success: false, 
-    error: 'Internal server error',
-    message: err.message 
+  console.error("Server Error:", err.stack);
+  res.status(500).json({
+    success: false,
+    error: "Internal server error",
+    message: err.message,
   });
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on http://localhost:${PORT}`);
   console.log(`Health check: http://localhost:${PORT}/health`);
   console.log(`✅ Emails will be sent to: phashdigital@gmail.com`);

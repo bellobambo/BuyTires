@@ -26,11 +26,8 @@
         <div class="search-header">
           <h2>HOW WOULD YOU LIKE TO SEARCH?</h2>
           <select class="search-type-select" id="searchTypeSelect">
-            <option value="" disabled selected hidden>
-              Select Search Type
-            </option>
+            <option value="vehicle" selected>By Vehicle</option>
             <option value="size">By Tire Size</option>
-            <option value="vehicle">By Vehicle</option>
           </select>
         </div>
 
@@ -64,7 +61,7 @@
                 <!-- <span class="asterisk">*</span> -->
               </label>
               <div class="searchable-select">
-                <select id="modelSelect" >
+                <select id="modelSelect">
                   <option value="">Select Model</option>
                 </select>
                 <input
@@ -163,6 +160,36 @@
           </span>
           FIND YOUR TIRES NOW
         </button>
+      </div>
+    </div>
+
+    <div class="lead-modal-overlay" id="leadModal">
+      <div class="lead-modal-content">
+        <button class="modal-close" id="closeLeadModal">×</button>
+        <h3>Registration page</h3>
+
+        <form id="leadForm">
+          <div class="lead-grid">
+            <div class="form-row">
+              <label for="userName">Name</label>
+              <input type="text" id="userName" required />
+            </div>
+            <div class="form-row">
+              <label for="userEmail">Email ID:</label>
+              <input type="email" id="userEmail" required />
+            </div>
+            <div class="form-row">
+              <label for="userPhone">Mobile No:</label>
+              <input type="tel" id="userPhone" required />
+            </div>
+            <div class="form-row">
+              <label for="userAddress">Address</label>
+              <input type="text" id="userAddress" required />
+            </div>
+          </div>
+
+          <button type="submit" class="search-btn">REGISTER</button>
+        </form>
       </div>
     </div>
 

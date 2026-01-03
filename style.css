@@ -68,17 +68,46 @@ body {
   display: none;
 }
 
-/* =========================
-   SEARCH SECTION / MODAL
-========================= */
 .search-section {
   display: none;
+  /* Add these lines below */
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
-  max-width: 1000px; /* Increased from 820px */
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6); /* Darken background */
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+.lead-modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7); /* Slightly darker */
+  z-index: 10000;
+  justify-content: center;
+  align-items: center;
 }
 
+.search-section .container {
+  max-width: 1000px; /* Limits width */
+  width: 100%;
+  margin: auto; /* Safety margin */
+}
+
+.lead-modal-overlay.active {
+  display: flex;
+}
+
+/* Update the active class to use flex so centering works */
 .search-section.active {
-  display: block;
+  display: flex; 
 }
 
 .container {
@@ -503,3 +532,62 @@ body {
     }
 }
 
+.lead-modal-content {
+  background: #fff;
+  padding: 30px;
+  border-radius: 8px;
+  max-width: 450px;
+  width: 90%; /* Responsive for mobile */
+  position: relative;
+}
+
+.lead-modal-content h3 {
+  margin: 0 0 15px 0;
+  font-size: 18px;
+  font-family: Arial, sans-serif;
+  color: #000;
+}
+
+.lead-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px; /* Very tight spacing between rows */
+}
+
+.lead-modal-content .form-row {
+  display: flex;
+  flex-direction: row; /* Side-by-side */
+  align-items: center; /* Vertical center */
+  gap: 10px;
+}
+
+/* Fix the label width so inputs stay aligned */
+.lead-modal-content label {
+  flex: 0 0 80px; /* Fixed width for labels */
+  font-size: 13px;
+  color: #333;
+  margin-bottom: 0;
+}
+
+.lead-modal-content input {
+  flex: 1; /* Input takes up remaining space */
+  padding: 4px 8px;
+  border: 1px solid #bdc3c7;
+  border-radius: 2px;
+  font-size: 14px;
+  height: 28px; /* Compact height */
+}
+
+.lead-modal-content .search-btn {
+  margin-top: 15px;
+  width: 100%;
+  background-color: #00c3ff;
+  color: #fff;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: bold;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  text-transform: uppercase;
+}

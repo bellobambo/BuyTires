@@ -299,10 +299,21 @@ const els = {
   searchBtn: document.getElementById("searchBtn"),
 };
 
+// Remove or modify this line at the bottom of script.js
+// els.searchType.dispatchEvent(new Event("change"));
+
+// Also, ensure your "Shop Now" button is visible at the start
 document.addEventListener("DOMContentLoaded", () => {
   els.tireImage.style.display = "none";
   els.vehicleImage.style.display = "none";
-  els.searchType.value = "";
+
+  // Make sure the Shop Now button is NOT hidden initially
+  const toggleBtn = document.getElementById("button1");
+  toggleBtn.classList.remove("hidden");
+
+  // Make sure the search section is NOT active initially
+  const searchSection = document.getElementById("searchSection");
+  searchSection.classList.remove("active");
 });
 
 els.searchType.addEventListener("change", function () {
@@ -349,7 +360,7 @@ toggleBtn.addEventListener("click", () => {
   searchSection.classList.add("active");
 
   // Reset the search type select to show placeholder
-  els.searchType.value = "";
+  els.searchType.value = "vehicle";
 
   // Reset all form fields
   els.year.value = "";
@@ -621,9 +632,71 @@ function updateVehiclePreview() {
   }
 }
 
+// New Lead Modal Elements
+const leadModal = document.getElementById("leadModal");
+const closeLeadModal = document.getElementById("closeLeadModal");
+const leadForm = document.getElementById("leadForm");
+
 /* =========================
-   SEARCH BUTTON
+   MODIFIED SEARCH BUTTON (FIXED)
 ========================= */
 els.searchBtn.addEventListener("click", () => {
-  alert("Search initiated!");
+  const isVehicleMode = els.searchType.value === "vehicle";
+
+  if (isVehicleMode) {
+    // Only require Make and Model to proceed
+    // You can remove these checks entirely if you want it 100% optional
+    if (!els.make.value || !els.model.value) {
+      alert("Please select at least a Make and Model to continue.");
+      return;
+    }
+  } else {
+    // If in "By Size" mode, you might want to check something else
+    // Or just let it pass
+  }
+
+  // Open the Lead Collection Modal
+  leadModal.classList.add("active");
 });
+
+// Close Lead Modal
+closeLeadModal.addEventListener("click", () => {
+  leadModal.classList.remove("active");
+});
+
+// Handle Form Submission
+leadForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  // Create a readable vehicle string from whatever fields are filled
+  const vehicleSummary = [
+    els.year.value,
+    els.make.value,
+    els.model.value,
+    els.trim.value,
+  ]
+    .filter(Boolean)
+    .join(" "); // .filter(Boolean) removes empty values
+
+  const userData = {
+    name: document.getElementById("userName").value,
+    phone: document.getElementById("userPhone").value,
+    email: document.getElementById("userEmail").value,
+    address: document.getElementById("userAddress").value,
+    searchType: els.searchType.value,
+    vehicleInfo: vehicleSummary,
+    tireSize: els.tireSize.value || "Not specified",
+    season: els.season.value,
+  };
+
+  console.log("Full Submission Data:", userData);
+
+  alert(`Success! Data collected for: ${userData.vehicleInfo}`);
+
+  // Close both modals
+  leadModal.classList.remove("active");
+  searchSection.classList.remove("active");
+  toggleBtn.classList.remove("hidden");
+});
+
+els.searchType.dispatchEvent(new Event("change"));

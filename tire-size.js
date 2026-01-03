@@ -58,14 +58,14 @@ function renderTireSizeForm(
   const formHTML = `
     <div class="staggered-layout">
         <div class="tire-column">
-            <div class="column-header">
-                <h3>FRONT TIRES</h3>
-                ${
-                  !isStaggered
-                    ? `<span class="staggered-toggle-link" id="addRearBtn">ADD DIFFERENT REAR SIZE</span>`
-                    : ""
-                }
-            </div>
+           <div class="column-header">
+    ${
+      isStaggered
+        ? `<h3>FRONT TIRES</h3>`
+        : `<span class="staggered-toggle-link" id="addRearBtn">ADD DIFFERENT REAR SIZE</span>`
+    }
+</div>
+
             <div class="form-row">
                 <label>Width <span class="asterisk">*</span></label>
                 <select id="frontWidth">${generateOptions(

@@ -4,10 +4,10 @@
 :root {
   --primary-theme: #02c5f6;
   --btn-shadow: #01a2cc;
-  --selection-blue: #005bc5;
+  --selection-blue: #01a2cc; /* Changed to your blue color */
   --text-gray: #666;
   --border-light: #e0e0e0;
-  --staggered-orange: #f7941d;
+  --staggered-orange: #01a2cc; /* Changed from #f7941d to #01a2cc */
 }
 
 /* =========================
@@ -390,7 +390,7 @@ body {
   font-weight: 800;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  color: var(--primary-theme);
+  color: #01a2cc; /* Changed to blue */
   text-decoration: underline;
   cursor: pointer;
   display: inline-block;
@@ -398,7 +398,7 @@ body {
 }
 
 .staggered-title:hover {
-  color: var(--selection-blue);
+  color: #02c5f6; /* Changed to light blue */
 }
 
 #staggeredContainer {
@@ -464,7 +464,7 @@ body {
 
 .staggered-toggle-link {
     cursor: pointer;
-    color: var(--primary-theme);
+    color: #01a2cc; /* Changed to blue */
     text-decoration: underline;
     font-size: 11px;
     font-weight: bold;
@@ -485,10 +485,8 @@ body {
     font-weight: bold;
 }
 
-
-
 .staggered-toggle-link:hover {
-    color: var(--selection-blue);
+    color: #02c5f6; /* Changed to light blue */
 }
 
 /* .asterisk {
@@ -581,7 +579,7 @@ body {
 .lead-modal-content .search-btn {
   margin-top: 15px;
   width: 100%;
-  background-color: #00c3ff;
+  background-color: #01a2cc; /* Changed to blue */
   color: #fff;
   padding: 10px;
   font-size: 14px;
@@ -590,4 +588,191 @@ body {
   border-radius: 2px;
   cursor: pointer;
   text-transform: uppercase;
+}
+
+
+/* =========================
+   LOADING STATES
+========================= */
+.loading-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 8px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.search-btn.loading {
+    opacity: 0.8;
+    cursor: not-allowed;
+}
+
+/* =========================
+   SUCCESS MESSAGE
+========================= */
+.success-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #4CAF50;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 100000;
+    animation: slideIn 0.3s ease-out;
+    max-width: 300px;
+}
+
+.success-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.success-icon {
+    background: white;
+    color: #4CAF50;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.success-text {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.success-message.fade-out {
+    animation: fadeOut 0.5s ease-out forwards;
+}
+
+/* =========================
+   ERROR MESSAGE
+========================= */
+.error-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #f44336;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 100000;
+    animation: slideIn 0.3s ease-out;
+    max-width: 300px;
+}
+
+.error-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.error-icon {
+    background: white;
+    color: #f44336;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.error-text {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.error-message.fade-out {
+    animation: fadeOut 0.5s ease-out forwards;
+}
+
+/* =========================
+   ANIMATIONS
+========================= */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+/* =========================
+   DISABLED STATE ENHANCEMENT
+========================= */
+.search-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: 0 4px 0 var(--btn-shadow) !important;
+}
+
+/* =========================
+   ADDITIONAL BLUE FIXES
+========================= */
+
+/* Ensure all buttons with the search-btn class in lead modal use blue */
+.lead-modal-content .search-btn {
+  background-color: #01a2cc !important;
+  box-shadow: 0 4px 0 #0188a6 !important;
+}
+
+.lead-modal-content .search-btn:hover {
+  background-color: #02b3e0 !important;
+}
+
+.lead-modal-content .search-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #0188a6 !important;
+}
+
+/* Fix any remaining orange references */
+a.staggered-toggle-link,
+button.staggered-toggle-link {
+  color: #01a2cc !important;
+}
+
+a.staggered-toggle-link:hover,
+button.staggered-toggle-link:hover {
+  color: #02c5f6 !important;
+}
+
+/* Remove any orange background or border colors */
+*[style*="f7941d"],
+*[style*="orange"] {
+  color: #01a2cc !important;
+  border-color: #01a2cc !important;
+  background-color: #01a2cc !important;
 }

@@ -15,13 +15,21 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-app.post('/send-lead', (req, res) => {
+// Add timeout configuration
+transporter.set('timeout', 10000); // 10 second timeout
+
+app.post('/send-lead', async (req, res) => {
   const { name, email, phone, address, searchType, vehicleInfo, tireSize, season } = req.body;
 
+  // Validation
+  if (!name || !email || !phone) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
   const mailOptions = {
-    from: `"Tire Lead: ${name}" <bellobambo21@gmail.com>`, // Must be your authenticated email
-    to: 'bellobambo21@gmail.com',
-    replyTo: email, // This allows you to reply directly to the customer
+    from: `"Tire Lead: ${name}" <bellobambo21@gmail.com>`,
+    to: 'phashdigital@gmail.com',
+    replyTo: email,
     subject: `New Lead: ${name} (${searchType})`,
     html: `
       <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
@@ -36,17 +44,40 @@ app.post('/send-lead', (req, res) => {
         <p><strong>Vehicle Info:</strong> ${vehicleInfo}</p>
         <p><strong>Tire Size:</strong> ${tireSize}</p>
         <p><strong>Season:</strong> ${season}</p>
+        <hr>
+        <p><small>Received: ${new Date().toLocaleString()}</small></p>
       </div>
     `
   };
 
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.error("Nodemailer Error:", error);
-      return res.status(500).send("Error sending email");
-    }
-    res.status(200).send("Success");
-  });
+  try {
+    // Add timeout for email sending
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Email sending timeout')), 10000);
+    });
+
+    const sendEmailPromise = transporter.sendMail(mailOptions);
+    
+    await Promise.race([sendEmailPromise, timeoutPromise]);
+    
+    console.log(`Email sent successfully for ${name}`);
+    res.status(200).json({ success: true, message: 'Lead sent successfully' });
+    
+  } catch (error) {
+    console.error("Email sending error:", error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message || 'Error sending email' 
+    });
+  }
 });
 
-app.listen(3000, () => console.log('Server running on http://localhost:3000'));
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+app.listen(3000, () => {
+  console.log('Server running on http://localhost:3000');
+  console.log('Health check: http://localhost:3000/health');
+});

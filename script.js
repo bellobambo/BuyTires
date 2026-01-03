@@ -299,23 +299,167 @@ const els = {
   searchBtn: document.getElementById("searchBtn"),
 };
 
-// Remove or modify this line at the bottom of script.js
-// els.searchType.dispatchEvent(new Event("change"));
+// =========================
+// LOADING & UTILITY FUNCTIONS (MOVE TO TOP)
+// =========================
+let isLoading = false;
 
-// Also, ensure your "Shop Now" button is visible at the start
+function showLoading(button, text = "Processing...") {
+  if (!button) return;
+
+  isLoading = true;
+  button.disabled = true;
+
+  // Create spinner span if it doesn't exist
+  let spinner = button.querySelector(".loading-spinner");
+  if (!spinner) {
+    spinner = document.createElement("span");
+    spinner.className = "loading-spinner";
+  }
+
+  button.innerHTML = "";
+  button.appendChild(spinner);
+  button.insertAdjacentText("beforeend", ` ${text}`);
+  button.classList.add("loading");
+}
+
+function hideLoading(button, originalText = "FIND YOUR TIRES NOW") {
+  if (!button) return;
+
+  isLoading = false;
+  button.disabled = false;
+  button.innerHTML = `
+    <span class="anticon">
+      <svg viewBox="64 64 896 896" fill="currentColor" width="20px" height="20px">
+        <path d="M909.6 854.5L641.4 586.3C690.7 525.5 720 448.2 720 364c0-196.6-159.4-356-356-356S8 167.4 8 364s159.4 356 356 356c84.2 0 161.5-29.3 222.3-78.6l268.2 268.2c9.2 9.2 24.3 9.2 33.5 0l34.1-34.1c11.5-11.5 11.5-30.1.1-41.6zM364 640c-152.4 0-276-123.6-276-276s123.6-276 276-276 276 123.6 276 276-123.6 276-276 276z"></path>
+      </svg>
+    </span>
+    ${originalText}
+  `;
+  button.classList.remove("loading");
+}
+
+function clearAllInputs() {
+  // Clear all search form inputs
+  els.year.value = "";
+  els.make.value = "";
+  els.model.value = "";
+  els.trim.value = "";
+  els.tireSize.value = "";
+  els.season.value = "All Tires";
+
+  // Clear search inputs
+  els.modelSearch.value = "";
+  els.trimSearch.value = "";
+  els.tireSizeSearch.value = "";
+
+  // Hide dropdowns
+  els.modelDropdown.classList.remove("active");
+  els.trimDropdown.classList.remove("active");
+  els.tireSizeDropdown.classList.remove("active");
+
+  // Reset searchable components
+  if (modelSearchable) modelSearchable.reset();
+  if (trimSearchable) trimSearchable.reset();
+  if (tireSizeSearchable) tireSizeSearchable.reset();
+
+  // Reset vehicle preview
+  resetVehicleImage();
+
+  // Hide staggered container if visible
+  const staggeredContainer = document.getElementById("staggeredContainer");
+  if (staggeredContainer) {
+    staggeredContainer.style.display = "none";
+  }
+
+  console.log("All search inputs cleared.");
+}
+
+function clearCustomerDetailsForm() {
+  document.getElementById("userName").value = "";
+  document.getElementById("userEmail").value = "";
+  document.getElementById("userPhone").value = "";
+  document.getElementById("userAddress").value = "";
+  console.log("Customer Details inputs cleared.");
+}
+
+function showSuccessMessage(message) {
+  // Remove any existing success message
+  const existingSuccess = document.querySelector(".success-message");
+  if (existingSuccess) existingSuccess.remove();
+
+  // Create success message element
+  const successMsg = document.createElement("div");
+  successMsg.className = "success-message";
+  successMsg.innerHTML = `
+    <div class="success-content">
+      <span class="success-icon">✓</span>
+      <span class="success-text">${message}</span>
+    </div>
+  `;
+
+  // Add to body
+  document.body.appendChild(successMsg);
+
+  // Remove after 3 seconds
+  setTimeout(() => {
+    successMsg.classList.add("fade-out");
+    setTimeout(() => {
+      if (successMsg.parentNode) {
+        successMsg.parentNode.removeChild(successMsg);
+      }
+    }, 500);
+  }, 3000);
+}
+
+function showError(message) {
+  // Remove any existing error messages
+  const existingError = document.querySelector(".error-message");
+  if (existingError) existingError.remove();
+
+  // Create error message
+  const errorMsg = document.createElement("div");
+  errorMsg.className = "error-message";
+  errorMsg.innerHTML = `
+    <div class="error-content">
+      <span class="error-icon">!</span>
+      <span class="error-text">${message}</span>
+    </div>
+  `;
+
+  // Add to body
+  document.body.appendChild(errorMsg);
+
+  // Remove after 5 seconds
+  setTimeout(() => {
+    errorMsg.classList.add("fade-out");
+    setTimeout(() => {
+      if (errorMsg.parentNode) {
+        errorMsg.parentNode.removeChild(errorMsg);
+      }
+    }, 500);
+  }, 5000);
+}
+
+// =========================
+// INITIALIZATION
+// =========================
 document.addEventListener("DOMContentLoaded", () => {
   els.tireImage.style.display = "none";
   els.vehicleImage.style.display = "none";
 
   // Make sure the Shop Now button is NOT hidden initially
   const toggleBtn = document.getElementById("button1");
-  toggleBtn.classList.remove("hidden");
+  if (toggleBtn) toggleBtn.classList.remove("hidden");
 
   // Make sure the search section is NOT active initially
   const searchSection = document.getElementById("searchSection");
-  searchSection.classList.remove("active");
+  if (searchSection) searchSection.classList.remove("active");
 });
 
+// =========================
+// SEARCH TYPE HANDLER
+// =========================
 els.searchType.addEventListener("change", function () {
   const container = document.querySelector(".search-section");
   const staggeredContainer = document.getElementById("staggeredContainer");
@@ -349,74 +493,49 @@ els.searchType.addEventListener("change", function () {
   }
 });
 
-// Modal Logic
+// =========================
+// MODAL LOGIC
+// =========================
 const toggleBtn = document.getElementById("button1");
 const searchSection = document.getElementById("searchSection");
 const closeModal = document.getElementById("closeModal");
 
 // When opening the modal, reset everything
-toggleBtn.addEventListener("click", () => {
-  toggleBtn.classList.add("hidden");
-  searchSection.classList.add("active");
+if (toggleBtn) {
+  toggleBtn.addEventListener("click", () => {
+    toggleBtn.classList.add("hidden");
+    if (searchSection) searchSection.classList.add("active");
 
-  // Reset the search type select to show placeholder
-  els.searchType.value = "vehicle";
+    // Reset the search type select to show placeholder
+    els.searchType.value = "vehicle";
 
-  // Reset all form fields
-  els.year.value = "";
-  els.make.value = "";
-  els.model.value = "";
-  els.trim.value = "";
-  els.tireSize.value = "";
-  els.season.value = "All Tires";
+    // Reset all form fields
+    clearAllInputs();
 
-  // Reset search inputs
-  els.modelSearch.value = "";
-  els.trimSearch.value = "";
-  els.tireSizeSearch.value = "";
+    // Show all form rows
+    document.querySelectorAll(".form-side > .form-row").forEach((row) => {
+      row.style.display = "flex";
+    });
 
-  // Hide dropdowns
-  els.modelDropdown.classList.remove("active");
-  els.trimDropdown.classList.remove("active");
-  els.tireSizeDropdown.classList.remove("active");
+    // Hide tire image
+    els.tireImage.style.display = "none";
 
-  // Reset model, trim, and tire size options
-  modelSearchable.reset();
-  trimSearchable.reset();
-  tireSizeSearchable.reset();
-
-  // Hide staggered container if visible
-  const staggeredContainer = document.getElementById("staggeredContainer");
-  if (staggeredContainer) {
-    staggeredContainer.style.display = "none";
-  }
-
-  // Show all form rows
-  document.querySelectorAll(".form-side > .form-row").forEach((row) => {
-    row.style.display = "flex";
+    // Remove size-mode class
+    document.querySelector(".search-section").classList.remove("size-mode");
   });
+}
 
-  // Hide tire image
-  els.tireImage.style.display = "none";
+if (closeModal) {
+  closeModal.addEventListener("click", () => {
+    if (searchSection) searchSection.classList.remove("active");
+    if (toggleBtn) toggleBtn.classList.remove("hidden");
+    clearAllInputs();
+  });
+}
 
-  // Remove size-mode class
-  document.querySelector(".search-section").classList.remove("size-mode");
-});
-
-// When closing the modal, reset search type
-closeModal.addEventListener("click", () => {
-  searchSection.classList.remove("active");
-  toggleBtn.classList.remove("hidden");
-  // Reset search type when closing
-  els.searchType.value = "";
-});
-
-// Reset on page load (in case page is refreshed with modal open)
-window.addEventListener("load", function () {
-  els.searchType.value = "";
-});
-
-// Populate Years
+// =========================
+// POPULATE FORM OPTIONS
+// =========================
 const currentYear = new Date().getFullYear();
 for (let year = currentYear; year >= 1948; year--) {
   const opt = document.createElement("option");
@@ -514,9 +633,9 @@ const tireSizeSearchable = setupSearchableSelect(
   els.tireSizeDropdown
 );
 
-/* =========================
-   MAKE CHANGE
-========================= */
+// =========================
+// FORM CHANGE HANDLERS
+// =========================
 els.make.addEventListener("change", () => {
   const make = els.make.value;
 
@@ -531,14 +650,10 @@ els.make.addEventListener("change", () => {
   resetVehicleImage();
 });
 
-/* =========================
-   MODEL CHANGE → IMAGE UPDATES HERE
-========================= */
 els.model.addEventListener("change", () => {
   const make = els.make.value;
   const model = els.model.value;
 
-  // Console log the selected make and model
   console.log("Vehicle Selected:");
   console.log("Make: ", make);
   console.log("Model: ", model);
@@ -553,9 +668,9 @@ els.model.addEventListener("change", () => {
   updateVehicleImage();
 });
 
-/* =========================
-   IMAGE LOGIC (FIXED)
-========================= */
+// =========================
+// IMAGE LOGIC (FIXED - REMOVE DUPLICATE)
+// =========================
 function updateVehicleImage() {
   const make = els.make.value;
   const model = els.model.value;
@@ -565,36 +680,8 @@ function updateVehicleImage() {
     return;
   }
 
-  // Adding 'public/' to the path because that is where your images are stored
-  const imagePath = `public/${make} ${model}.png`;
-
-  // Console log the path being sent to the image tag
-  console.log("Rendering Image Path: ", imagePath);
-
-  els.vehicleImage.src = imagePath;
-  els.vehicleImage.style.display = "block";
-
-  // Error check: if the image file doesn't exist, log it
-  els.vehicleImage.onerror = function () {
-    console.error("Could not find image at path: ", imagePath);
-    this.style.display = "none";
-  };
-}
-
-function updateVehicleImage() {
-  const make = els.make.value;
-  const model = els.model.value;
-
-  if (!make || !model) {
-    resetVehicleImage();
-    return;
-  }
-
-  // 2. Fixed Path: Added '/public/' prefix
-  // If your HTML file is in the root and images are in /public, use this:
   const imageName = `public/${make} ${model}.png`;
-
-  console.log("- Rendering Image Path:", imageName);
+  console.log("Rendering Image Path:", imageName);
 
   els.vehicleImage.src = imageName;
   els.vehicleImage.style.display = "block";
@@ -611,116 +698,106 @@ function resetVehicleImage() {
   els.vehicleImage.style.display = "none";
 }
 
-/* =========================
-   VEHICLE TEXT PREVIEW
-========================= */
-function updateVehiclePreview() {
-  const { year, make, model, trim } = els;
-
-  if (
-    els.searchType.value !== "size" &&
-    year.value &&
-    make.value &&
-    model.value &&
-    trim.value
-  ) {
-    els.vehicleName.textContent = `${year.value} ${make.value} ${model.value}`;
-    els.vehicleSpecs.textContent = `${trim.value} • Ready to find tires`;
-  } else {
-    els.vehicleName.textContent = "Select your vehicle";
-    els.vehicleSpecs.textContent = "Choose year, make, model, and trim";
-  }
-}
-
-
-/* =========================
-   LEAD MODAL & NODE.JS LOGIC
-========================= */
-
-// New Lead Modal Elements
+// =========================
+// LEAD MODAL LOGIC
+// =========================
 const leadModal = document.getElementById("leadModal");
 const closeLeadModal = document.getElementById("closeLeadModal");
 const leadForm = document.getElementById("leadForm");
 
-/**
- * Specifically clears only the inputs inside the Customer Details modal
- */
-function clearCustomerDetailsForm() {
-    // Standard form reset
-    leadForm.reset();
-    console.log("Customer Details inputs have been cleared.");
-}
-
 // Open the Lead Collection Modal
 els.searchBtn.addEventListener("click", () => {
-    const isVehicleMode = els.searchType.value === "vehicle";
+  const isVehicleMode = els.searchType.value === "vehicle";
 
-    if (isVehicleMode) {
-        if (!els.make.value || !els.model.value) {
-            alert("Please select at least a Make and Model to continue.");
-            return;
-        }
+  if (isVehicleMode) {
+    if (!els.make.value || !els.model.value) {
+      showError("Please select at least a Make and Model to continue.");
+      return;
     }
-    leadModal.classList.add("active");
+  }
+
+  // Show loading on search button before opening modal
+  showLoading(els.searchBtn, "Loading...");
+
+  // Simulate a brief loading period
+  setTimeout(() => {
+    hideLoading(els.searchBtn);
+    if (leadModal) leadModal.classList.add("active");
+  }, 500);
 });
 
-// Logic for clicking the 'X' button on Customer Modal
-closeLeadModal.addEventListener("click", () => {
-    leadModal.classList.remove("active");
-    clearCustomerDetailsForm(); // Clear inputs when closing without registering
-});
+if (closeLeadModal) {
+  closeLeadModal.addEventListener("click", () => {
+    if (leadModal) leadModal.classList.remove("active");
+    clearCustomerDetailsForm();
+  });
+}
 
-// Handle Form Submission to Node.js Server
-leadForm.addEventListener("submit", async (e) => {
+if (leadForm) {
+  leadForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    // 1. Format the Vehicle string
-    const vehicleSummary = [
-        els.year.value,
-        els.make.value,
-        els.model.value,
-        els.trim.value,
-    ].filter(Boolean).join(" ");
-
-    // 2. Prepare the data object
+    const submitBtn = leadForm.querySelector(".search-btn");
     const userData = {
-        name: document.getElementById("userName").value,
-        email: document.getElementById("userEmail").value,
-        phone: document.getElementById("userPhone").value,
-        address: document.getElementById("userAddress").value,
-        searchType: els.searchType.value === "vehicle" ? "By Vehicle" : "By Tire Size",
-        vehicleInfo: vehicleSummary || "N/A",
-        tireSize: els.tireSize.value || "Not specified",
-        season: els.season.value,
+      name: document.getElementById("userName").value,
+      email: document.getElementById("userEmail").value,
+      phone: document.getElementById("userPhone").value,
+      address: document.getElementById("userAddress").value,
+      searchType:
+        els.searchType.value === "vehicle" ? "By Vehicle" : "By Tire Size",
+      vehicleInfo:
+        [els.year.value, els.make.value, els.model.value, els.trim.value]
+          .filter(Boolean)
+          .join(" ") || "N/A",
+      tireSize: els.tireSize.value || "Not specified",
+      season: els.season.value,
     };
 
     try {
-        const response = await fetch("http://localhost:3000/send-lead", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(userData),
-        });
+      // Show loading on submit button
+      showLoading(submitBtn, "Registering...");
 
-        if (response.ok) {
-            alert(`Success! Registration details for ${userData.name} sent.`);
+      const response = await fetch("http://localhost:3000/send-lead", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      });
 
-            // 3. Clear the Customer inputs after success
-            clearCustomerDetailsForm();
+      if (response.ok) {
+        // Show success message
+        showSuccessMessage(
+          `Success! Registration for ${userData.name} completed.`
+        );
 
-            // 4. Close all modals
-            leadModal.classList.remove("active");
-            searchSection.classList.remove("active");
-            toggleBtn.classList.remove("hidden");
-        } else {
-            alert("Failed to send details. Please check if the Node server is active.");
-        }
+        // Clear all customer details
+        clearCustomerDetailsForm();
+
+        // Clear all search inputs
+        clearAllInputs();
+
+        // Close all modals
+        if (leadModal) leadModal.classList.remove("active");
+        if (searchSection) searchSection.classList.remove("active");
+        if (toggleBtn) toggleBtn.classList.remove("hidden");
+      } else {
+        const errorData = await response.json();
+        showError(
+          errorData.error || "Failed to send details. Please try again."
+        );
+      }
     } catch (error) {
-        console.error("Connection Error:", error);
-        alert("Could not connect to the backend server.");
+      console.error("Connection Error:", error);
+      showError(
+        "Could not connect to the server. Please check your connection."
+      );
+    } finally {
+      // Always hide loading
+      hideLoading(submitBtn, "REGISTER");
     }
-});
+  });
+}
 
 // Initialize search type view
 els.searchType.dispatchEvent(new Event("change"));

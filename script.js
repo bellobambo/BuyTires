@@ -632,71 +632,95 @@ function updateVehiclePreview() {
   }
 }
 
+
+/* =========================
+   LEAD MODAL & NODE.JS LOGIC
+========================= */
+
 // New Lead Modal Elements
 const leadModal = document.getElementById("leadModal");
 const closeLeadModal = document.getElementById("closeLeadModal");
 const leadForm = document.getElementById("leadForm");
 
-/* =========================
-   MODIFIED SEARCH BUTTON (FIXED)
-========================= */
+/**
+ * Specifically clears only the inputs inside the Customer Details modal
+ */
+function clearCustomerDetailsForm() {
+    // Standard form reset
+    leadForm.reset();
+    console.log("Customer Details inputs have been cleared.");
+}
+
+// Open the Lead Collection Modal
 els.searchBtn.addEventListener("click", () => {
-  const isVehicleMode = els.searchType.value === "vehicle";
+    const isVehicleMode = els.searchType.value === "vehicle";
 
-  if (isVehicleMode) {
-    // Only require Make and Model to proceed
-    // You can remove these checks entirely if you want it 100% optional
-    if (!els.make.value || !els.model.value) {
-      alert("Please select at least a Make and Model to continue.");
-      return;
+    if (isVehicleMode) {
+        if (!els.make.value || !els.model.value) {
+            alert("Please select at least a Make and Model to continue.");
+            return;
+        }
     }
-  } else {
-    // If in "By Size" mode, you might want to check something else
-    // Or just let it pass
-  }
-
-  // Open the Lead Collection Modal
-  leadModal.classList.add("active");
+    leadModal.classList.add("active");
 });
 
-// Close Lead Modal
+// Logic for clicking the 'X' button on Customer Modal
 closeLeadModal.addEventListener("click", () => {
-  leadModal.classList.remove("active");
+    leadModal.classList.remove("active");
+    clearCustomerDetailsForm(); // Clear inputs when closing without registering
 });
 
-// Handle Form Submission
-leadForm.addEventListener("submit", (e) => {
-  e.preventDefault();
+// Handle Form Submission to Node.js Server
+leadForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-  // Create a readable vehicle string from whatever fields are filled
-  const vehicleSummary = [
-    els.year.value,
-    els.make.value,
-    els.model.value,
-    els.trim.value,
-  ]
-    .filter(Boolean)
-    .join(" "); // .filter(Boolean) removes empty values
+    // 1. Format the Vehicle string
+    const vehicleSummary = [
+        els.year.value,
+        els.make.value,
+        els.model.value,
+        els.trim.value,
+    ].filter(Boolean).join(" ");
 
-  const userData = {
-    name: document.getElementById("userName").value,
-    phone: document.getElementById("userPhone").value,
-    email: document.getElementById("userEmail").value,
-    address: document.getElementById("userAddress").value,
-    searchType: els.searchType.value,
-    vehicleInfo: vehicleSummary,
-    tireSize: els.tireSize.value || "Not specified",
-    season: els.season.value,
-  };
+    // 2. Prepare the data object
+    const userData = {
+        name: document.getElementById("userName").value,
+        email: document.getElementById("userEmail").value,
+        phone: document.getElementById("userPhone").value,
+        address: document.getElementById("userAddress").value,
+        searchType: els.searchType.value === "vehicle" ? "By Vehicle" : "By Tire Size",
+        vehicleInfo: vehicleSummary || "N/A",
+        tireSize: els.tireSize.value || "Not specified",
+        season: els.season.value,
+    };
 
-  console.log("Full Submission Data:", userData);
+    try {
+        const response = await fetch("http://localhost:3000/send-lead", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(userData),
+        });
 
-  alert(`Success! Data collected for: ${userData.vehicleInfo}`);
+        if (response.ok) {
+            alert(`Success! Registration details for ${userData.name} sent.`);
 
-  // Close both modals
-  leadModal.classList.remove("active");
-  searchSection.classList.remove("active");
-  toggleBtn.classList.remove("hidden");
+            // 3. Clear the Customer inputs after success
+            clearCustomerDetailsForm();
+
+            // 4. Close all modals
+            leadModal.classList.remove("active");
+            searchSection.classList.remove("active");
+            toggleBtn.classList.remove("hidden");
+        } else {
+            alert("Failed to send details. Please check if the Node server is active.");
+        }
+    } catch (error) {
+        console.error("Connection Error:", error);
+        alert("Could not connect to the backend server.");
+    }
 });
 
+// Initialize search type view
 els.searchType.dispatchEvent(new Event("change"));

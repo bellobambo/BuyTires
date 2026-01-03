@@ -221,6 +221,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
   
   /* Set fixed dimensions for the container */
   width: 400px; 
@@ -775,4 +776,23 @@ button.staggered-toggle-link:hover {
   color: #01a2cc !important;
   border-color: #01a2cc !important;
   background-color: #01a2cc !important;
+}
+
+
+.vehicle-details {
+  margin-top: 12px;
+  text-align: center;
+}
+
+.vehicle-details h4 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+  color: #222;
+}
+
+.vehicle-details p {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: #666;
 }

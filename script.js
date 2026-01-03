@@ -650,27 +650,34 @@ els.make.addEventListener("change", () => {
   resetVehicleImage();
 });
 
+
+
 els.model.addEventListener("change", () => {
   const make = els.make.value;
   const model = els.model.value;
 
-  console.log("Vehicle Selected:");
-  console.log("Make: ", make);
-  console.log("Model: ", model);
+  console.log("Vehicle Selected:", make, model);
 
+  // Populate trims
   if (make && model && vehicleData[make]?.trims[model]) {
     trimSearchable.updateOptions(vehicleData[make].trims[model]);
   } else {
     trimSearchable.reset();
   }
 
-  tireSizeSearchable.reset();
+  // ✅ POPULATE TIRE SIZES
+  if (make && model && vehicleData[make]?.tireSizes?.[model]) {
+    tireSizeSearchable.updateOptions(vehicleData[make].tireSizes[model]);
+  } else {
+    tireSizeSearchable.reset();
+  }
+
   updateVehicleImage();
+  updateVehicleDetails();
 });
 
-// =========================
-// IMAGE LOGIC (FIXED - REMOVE DUPLICATE)
-// =========================
+
+
 function updateVehicleImage() {
   const make = els.make.value;
   const model = els.model.value;
@@ -696,7 +703,11 @@ function updateVehicleImage() {
 function resetVehicleImage() {
   els.vehicleImage.src = "";
   els.vehicleImage.style.display = "none";
+
+  const detailsBox = document.getElementById("vehicleDetails");
+  if (detailsBox) detailsBox.style.display = "none";
 }
+
 
 // =========================
 // LEAD MODAL LOGIC
@@ -799,5 +810,43 @@ if (leadForm) {
   });
 }
 
+
+
+function updateVehicleDetails() {
+  const year = els.year.value;
+  const make = els.make.value;
+  const model = els.model.value;
+  const trim = els.trim.value;
+  const tireSize = els.tireSize.value;
+
+  const detailsBox = document.getElementById("vehicleDetails");
+
+  // Require at least Make + Model
+  if (!make || !model) {
+    detailsBox.style.display = "none";
+    els.vehicleName.textContent = "";
+    els.vehicleSpecs.textContent = "";
+    return;
+  }
+
+  // Vehicle name
+  els.vehicleName.textContent = [year, make, model].filter(Boolean).join(" ");
+
+  // Specs line
+  const specs = [];
+  if (trim) specs.push(`Trim: ${trim}`);
+  if (tireSize) specs.push(`Tire Size: ${tireSize}`);
+
+  els.vehicleSpecs.textContent =
+    specs.length ? specs.join(" • ") : "Select trim and tire size";
+
+  detailsBox.style.display = "block";
+}
+
+
 // Initialize search type view
 els.searchType.dispatchEvent(new Event("change"));
+els.trim.addEventListener("change", updateVehicleDetails);
+els.tireSize.addEventListener("change", updateVehicleDetails);
+els.year.addEventListener("change", updateVehicleDetails);
+

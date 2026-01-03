@@ -28,7 +28,7 @@ app.post('/send-lead', async (req, res) => {
 
   const mailOptions = {
     from: `"Tire Lead: ${name}" <bellobambo21@gmail.com>`,
-    to: 'phashdigital@gmail.com',
+    to: 'idier@mercymobile.tech',
     replyTo: email,
     subject: `New Lead: ${name} (${searchType})`,
     html: `

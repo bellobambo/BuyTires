@@ -499,6 +499,7 @@ els.searchType.addEventListener("change", function () {
 const toggleBtn = document.getElementById("button1");
 const searchSection = document.getElementById("searchSection");
 const closeModal = document.getElementById("closeModal");
+const customerSection = document.getElementById("customerSection");
 
 // When opening the modal, reset everything
 if (toggleBtn) {
@@ -650,8 +651,6 @@ els.make.addEventListener("change", () => {
   resetVehicleImage();
 });
 
-
-
 els.model.addEventListener("change", () => {
   const make = els.make.value;
   const model = els.model.value;
@@ -675,8 +674,6 @@ els.model.addEventListener("change", () => {
   updateVehicleImage();
   updateVehicleDetails();
 });
-
-
 
 function updateVehicleImage() {
   const make = els.make.value;
@@ -708,7 +705,6 @@ function resetVehicleImage() {
   if (detailsBox) detailsBox.style.display = "none";
 }
 
-
 // =========================
 // LEAD MODAL LOGIC
 // =========================
@@ -716,7 +712,6 @@ const leadModal = document.getElementById("leadModal");
 const closeLeadModal = document.getElementById("closeLeadModal");
 const leadForm = document.getElementById("leadForm");
 
-// Open the Lead Collection Modal
 els.searchBtn.addEventListener("click", () => {
   const isVehicleMode = els.searchType.value === "vehicle";
 
@@ -727,14 +722,16 @@ els.searchBtn.addEventListener("click", () => {
     }
   }
 
-  // Show loading on search button before opening modal
+  // Optional loading feedback
   showLoading(els.searchBtn, "Loading...");
 
-  // Simulate a brief loading period
   setTimeout(() => {
     hideLoading(els.searchBtn);
-    if (leadModal) leadModal.classList.add("active");
-  }, 500);
+
+    // 🔁 Switch sections (NO MODAL)
+    searchSection.classList.remove("active");
+    customerSection.classList.add("active");
+  }, 300);
 });
 
 if (closeLeadModal) {
@@ -749,6 +746,7 @@ if (leadForm) {
     e.preventDefault();
 
     const submitBtn = leadForm.querySelector(".search-btn");
+
     const userData = {
       name: document.getElementById("userName").value,
       email: document.getElementById("userEmail").value,
@@ -765,8 +763,8 @@ if (leadForm) {
     };
 
     try {
-      // Show loading on submit button
-      showLoading(submitBtn, "Registering...");
+      // 🔄 Loading state
+      showLoading(submitBtn, "Sending your information...");
 
       const response = await fetch("http://localhost:3000/send-lead", {
         method: "POST",
@@ -776,41 +774,41 @@ if (leadForm) {
         body: JSON.stringify(userData),
       });
 
-      if (response.ok) {
-        // Show success message
-        showSuccessMessage(
-          `Success! Registration for ${userData.name} completed.`
-        );
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to send lead");
+      }
 
-        // Clear all customer details
+      // ✅ Success message
+      showSuccessMessage("Information sent! Opening booking page...");
+
+      // 🧹 Cleanup UI (after a brief delay so user sees success message)
+      setTimeout(() => {
         clearCustomerDetailsForm();
-
-        // Clear all search inputs
         clearAllInputs();
 
-        // Close all modals
-        if (leadModal) leadModal.classList.remove("active");
+        if (customerSection) customerSection.classList.remove("active");
         if (searchSection) searchSection.classList.remove("active");
         if (toggleBtn) toggleBtn.classList.remove("hidden");
-      } else {
-        const errorData = await response.json();
-        showError(
-          errorData.error || "Failed to send details. Please try again."
-        );
-      }
+
+        // 🔁 Reset button
+        hideLoading(submitBtn, "Book a session");
+      }, 1500);
+
+      // ⏩ Open Calendly in NEW TAB after email is sent
+      setTimeout(() => {
+        window.open("https://calendly.com/mercymobile", "_blank");
+      }, 1200);
     } catch (error) {
-      console.error("Connection Error:", error);
+      console.error("Submission Error:", error);
       showError(
-        "Could not connect to the server. Please check your connection."
+        error.message || "Could not connect to the server. Please try again."
       );
-    } finally {
-      // Always hide loading
-      hideLoading(submitBtn, "REGISTER");
+      // 🔁 Reset button on error
+      hideLoading(submitBtn, "Book a session");
     }
   });
 }
-
-
 
 function updateVehicleDetails() {
   const year = els.year.value;
@@ -830,23 +828,22 @@ function updateVehicleDetails() {
   }
 
   // Vehicle name
-  els.vehicleName.textContent = [year, make, model].filter(Boolean).join(" ");
+  els.vehicleName.textContent = [make, model].filter(Boolean).join(" ");
 
   // Specs line
   const specs = [];
   if (trim) specs.push(`Trim: ${trim}`);
   if (tireSize) specs.push(`Tire Size: ${tireSize}`);
 
-  els.vehicleSpecs.textContent =
-    specs.length ? specs.join(" • ") : "Select trim and tire size";
+  els.vehicleSpecs.textContent = specs.length
+    ? specs.join(" • ")
+    : "Select trim and tire size";
 
   detailsBox.style.display = "block";
 }
-
 
 // Initialize search type view
 els.searchType.dispatchEvent(new Event("change"));
 els.trim.addEventListener("change", updateVehicleDetails);
 els.tireSize.addEventListener("change", updateVehicleDetails);
 els.year.addEventListener("change", updateVehicleDetails);
-

@@ -23,12 +23,8 @@ body {
   margin: 0;
   padding: 20px;
   min-height: 100vh;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
 }
+
 
 /* =========================
    BUTTONS
@@ -44,6 +40,8 @@ body {
   cursor: pointer;
   box-shadow: 0 4px 0 var(--btn-shadow);
   transition: all 0.2s;
+
+    margin: 40px auto; 
 
   display: flex;
   align-items: center;
@@ -187,7 +185,7 @@ body {
 .search-type-select {
   width: 200px;
   padding: 8px 12px;
-  font-size: 14px;
+  font-size: 16px;
   border-radius: 4px;
   border: 1px solid #ccc;
   background-color: #fff;
@@ -214,6 +212,20 @@ body {
   flex-direction: column;
   gap: 15px;
 }
+
+.customer-section {
+  min-height: 100vh;
+  display: none;               /* hidden by default */
+  align-items: center;         /* vertical center */
+  justify-content: center;     /* horizontal center */
+  padding: 20px;
+}
+
+
+.customer-section.active {
+    display: flex;   
+}
+
 
 .vehicle-preview {
   grid-column: 2;
@@ -275,14 +287,10 @@ body {
 }
 
 .form-row {
-    display: flex;
-    flex-direction: row; /* Align horizontal */
-    align-items: center; /* Center label with input vertically */
-    justify-content: space-between;
-    margin-bottom: 12px;
-    width: 100%;
-    gap: 10px;
+  display: flex;
+  justify-content: space-between;
 }
+
 
 .form-row select, 
 .select-wrapper {
@@ -293,13 +301,9 @@ body {
 
 
 .form-row label {
-    flex: 0 0 70px; 
-    margin-bottom: 0; 
-    font-size: 13px;
-    font-weight: 700;
-    color: #444;
-    white-space: nowrap;
+  flex: 0 0 70px;
 }
+
 
 .form-row select {
   width: 100%;
@@ -569,13 +573,11 @@ body {
 }
 
 .lead-modal-content input {
-  flex: 1; /* Input takes up remaining space */
+  height: 28px;
   padding: 4px 8px;
-  border: 1px solid #bdc3c7;
-  border-radius: 2px;
   font-size: 14px;
-  height: 28px; /* Compact height */
 }
+
 
 .lead-modal-content .search-btn {
   margin-top: 15px;
@@ -615,94 +617,83 @@ body {
     cursor: not-allowed;
 }
 
-/* =========================
-   SUCCESS MESSAGE
-========================= */
-.success-message {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: #4CAF50;
-    color: white;
-    padding: 15px 20px;
-    border-radius: 4px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    z-index: 100000;
-    animation: slideIn 0.3s ease-out;
-    max-width: 300px;
+/* Loading spinner */
+.loading-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #fff;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-right: 8px;
 }
 
-.success-content {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Success/Error messages */
+.success-message {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #4caf50;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+  animation: slideIn 0.3s ease;
+}
+
+.error-message {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #f44336;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+  animation: slideIn 0.3s ease;
+}
+
+.success-content,
+.error-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .success-icon {
-    background: white;
-    color: #4CAF50;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 14px;
-}
-
-.success-text {
-    font-size: 14px;
-    font-weight: 500;
-}
-
-.success-message.fade-out {
-    animation: fadeOut 0.5s ease-out forwards;
-}
-
-/* =========================
-   ERROR MESSAGE
-========================= */
-.error-message {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: #f44336;
-    color: white;
-    padding: 15px 20px;
-    border-radius: 4px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    z-index: 100000;
-    animation: slideIn 0.3s ease-out;
-    max-width: 300px;
-}
-
-.error-content {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  font-size: 18px;
+  font-weight: bold;
 }
 
 .error-icon {
-    background: white;
-    color: #f44336;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 14px;
+  font-size: 18px;
+  font-weight: bold;
 }
 
-.error-text {
-    font-size: 14px;
-    font-weight: 500;
+.fade-out {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.5s, transform 0.5s;
 }
 
-.error-message.fade-out {
-    animation: fadeOut 0.5s ease-out forwards;
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* =========================
@@ -796,3 +787,41 @@ button.staggered-toggle-link:hover {
   font-size: 14px;
   color: #666;
 }
+
+
+
+/* =========================
+   CUSTOMER PAGE FORM FIX
+========================= */
+
+.customer-section .form-row {
+  display: flex;
+  flex-direction: column; /* Stack label + input */
+  align-items: flex-start;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.customer-section .form-row label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  flex: none;
+}
+
+.customer-section .form-row input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 15px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+
+.customer-section .container {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 30px;
+}
+

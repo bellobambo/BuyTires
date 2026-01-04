@@ -705,9 +705,6 @@ function resetVehicleImage() {
   if (detailsBox) detailsBox.style.display = "none";
 }
 
-// =========================
-// LEAD MODAL LOGIC
-// =========================
 const leadModal = document.getElementById("leadModal");
 const closeLeadModal = document.getElementById("closeLeadModal");
 const leadForm = document.getElementById("leadForm");
@@ -766,7 +763,7 @@ if (leadForm) {
       // 🔄 Loading state
       showLoading(submitBtn, "Sending your information...");
 
-      const response = await fetch("http://localhost:3000/send-lead", {
+      const response = await fetch("https://buytiresapi.onrender.com/send-lead", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

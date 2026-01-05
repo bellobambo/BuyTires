@@ -26,6 +26,14 @@ body {
 }
 
 
+h2 {
+  text-align: center;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+
+
 /* =========================
    BUTTONS
 ========================= */
@@ -38,7 +46,6 @@ body {
   font-weight: 700;
   border-radius: 6px;
   cursor: pointer;
-  box-shadow: 0 4px 0 var(--btn-shadow);
   transition: all 0.2s;
 
     margin: 40px auto; 
@@ -53,9 +60,9 @@ body {
 
 .toggle-btn:hover {
   filter: brightness(1.05);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 0 var(--btn-shadow);
+  transform: translateY(-1px) scale(1.05);
 }
+
 
 .toggle-btn:active {
   transform: translateY(2px);
@@ -245,12 +252,10 @@ body {
 
 .vehicle-img {
   width: 400px; /* Constant width */
-  height: 100%;
+  height: 80%;
   
-  /* 'contain' ensures the car is fully visible without stretching */
   object-fit: contain; 
   
-  /* Center the image within the 400px width */
   display: block;
 }
 
@@ -825,3 +830,72 @@ button.staggered-toggle-link:hover {
   padding: 30px;
 }
 
+
+.success-panel {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.success-panel-content > div {
+  margin-top: 16px;
+  padding: 14px 16px;
+  font-size: 16px;          /* increase text size */
+  line-height: 1.5;
+  border-radius: 8px;
+  background: #f6f8fa;      /* subtle highlight */
+}
+
+.success-panel-content > div a {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 18px;          /* bigger number */
+  font-weight: 600;
+  color: #1976d2;
+  text-decoration: none;
+}
+
+
+.success-panel.active {
+  display: flex;
+}
+
+.success-panel-content {
+  background: #fff;
+  padding: 24px 28px;
+  border-radius: 10px;
+  max-width: 420px;
+  width: 90%;
+  position: relative;
+  text-align: center;
+  animation: scaleIn 0.25s ease;
+}
+
+.success-panel-content h3 {
+  margin-top: 0;
+}
+
+.success-panel-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  border: none;
+  background: none;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

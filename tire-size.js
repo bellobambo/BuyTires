@@ -161,6 +161,100 @@ function renderTireSizeForm(
 
   container.innerHTML = formHTML;
 
+  const frontWidth = document.getElementById("frontWidth");
+  const frontProfile = document.getElementById("frontProfile");
+  const frontWheelSize = document.getElementById("frontWheelSize");
+  const mainTireSeason = document.getElementById("mainTireSeason");
+  const speedRating = document.getElementById("speedRating");
+  const loadIndex = document.getElementById("loadIndex");
+
+  if (frontWidth) {
+    frontWidth.addEventListener("change", (e) => {
+      tireSizeData.frontWidth = e.target.value;
+      updateTireSizeDisplay();
+    });
+  }
+
+  if (frontProfile) {
+    frontProfile.addEventListener("change", (e) => {
+      tireSizeData.frontProfile = e.target.value;
+      updateTireSizeDisplay();
+    });
+  }
+
+  if (frontWheelSize) {
+    frontWheelSize.addEventListener("change", (e) => {
+      tireSizeData.frontWheelSize = e.target.value;
+      updateTireSizeDisplay();
+    });
+  }
+
+  if (mainTireSeason) {
+    mainTireSeason.addEventListener("change", (e) => {
+      tireSizeData.mainTireSeason = e.target.value;
+      // Also update the main season select
+      els.season.value = e.target.value;
+    });
+  }
+
+  if (speedRating) {
+    speedRating.addEventListener("change", (e) => {
+      tireSizeData.speedRating = e.target.value;
+    });
+  }
+
+  if (loadIndex) {
+    loadIndex.addEventListener("change", (e) => {
+      tireSizeData.loadIndex = e.target.value;
+    });
+  }
+
+  // For staggered setup
+  if (isStaggered) {
+    const rearWidth = document.getElementById("rearWidth");
+    const rearProfile = document.getElementById("rearProfile");
+    const rearWheelSize = document.getElementById("rearWheelSize");
+
+    if (rearWidth) {
+      rearWidth.addEventListener("change", (e) => {
+        tireSizeData.rearWidth = e.target.value;
+        updateTireSizeDisplay();
+      });
+    }
+
+    if (rearProfile) {
+      rearProfile.addEventListener("change", (e) => {
+        tireSizeData.rearProfile = e.target.value;
+        updateTireSizeDisplay();
+      });
+    }
+
+    if (rearWheelSize) {
+      rearWheelSize.addEventListener("change", (e) => {
+        tireSizeData.rearWheelSize = e.target.value;
+        updateTireSizeDisplay();
+      });
+    }
+  }
+
+  // Function to update the displayed tire size
+  function updateTireSizeDisplay() {
+    if (isStaggered) {
+      const frontSize = `${tireSizeData.frontWidth}/${
+        tireSizeData.frontProfile
+      }R${tireSizeData.frontWheelSize.replace('"', "")}`;
+      const rearSize = `${tireSizeData.rearWidth}/${
+        tireSizeData.rearProfile
+      }R${tireSizeData.rearWheelSize.replace('"', "")}`;
+      els.tireSize.value = `Staggered: ${frontSize} (Front) / ${rearSize} (Rear)`;
+    } else {
+      const size = `${tireSizeData.frontWidth}/${
+        tireSizeData.frontProfile
+      }R${tireSizeData.frontWheelSize.replace('"', "")}`;
+      els.tireSize.value = size;
+    }
+  }
+
   // Listeners
   const addBtn = document.getElementById("addRearBtn");
   const hideBtn = document.getElementById("hideRearBtn");

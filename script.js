@@ -1,3 +1,15 @@
+let tireSizeData = {
+  frontWidth: "",
+  frontProfile: "",
+  frontWheelSize: "",
+  rearWidth: "",
+  rearProfile: "",
+  rearWheelSize: "",
+  mainTireSeason: "",
+  speedRating: "",
+  loadIndex: "",
+};
+
 const vehicleData = {
   Acura: {
     models: ["MDX", "RDX", "TLX", "Integra"],
@@ -744,65 +756,142 @@ if (leadForm) {
 
     const submitBtn = leadForm.querySelector(".search-btn");
 
+    // Determine search mode
+    const isByTireSize = els.searchType.value === "size";
+
+    // Get tire size from appropriate source
+    let finalTireSize = els.tireSize.value;
+    let finalSeason = els.season.value;
+
+    if (isByTireSize) {
+      // Get tire size from the staggered form
+      if (
+        tireSizeData.frontWidth &&
+        tireSizeData.frontProfile &&
+        tireSizeData.frontWheelSize
+      ) {
+        const frontSize = `${tireSizeData.frontWidth}/${
+          tireSizeData.frontProfile
+        }R${tireSizeData.frontWheelSize.replace('"', "")}`;
+
+        if (
+          tireSizeData.rearWidth &&
+          tireSizeData.rearProfile &&
+          tireSizeData.rearWheelSize
+        ) {
+          // Staggered setup
+          const rearSize = `${tireSizeData.rearWidth}/${
+            tireSizeData.rearProfile
+          }R${tireSizeData.rearWheelSize.replace('"', "")}`;
+          finalTireSize = `Staggered: ${frontSize} (Front) / ${rearSize} (Rear)`;
+        } else {
+          // Square setup
+          finalTireSize = frontSize;
+        }
+      }
+
+      // Use season from tire size form if available
+      if (tireSizeData.mainTireSeason) {
+        finalSeason = tireSizeData.mainTireSeason;
+      }
+    }
+
+    // Get vehicle info regardless of search mode
+    const vehicleInfo =
+      [els.year.value, els.make.value, els.model.value, els.trim.value]
+        .filter(Boolean)
+        .join(" ") || "N/A";
+
+    // Get tire info (prioritize staggered form for tire size mode)
+    const tireInfo = isByTireSize
+      ? finalTireSize
+      : els.tireSize.value || "Not specified";
+
     const userData = {
       name: document.getElementById("userName").value,
       email: document.getElementById("userEmail").value,
       phone: document.getElementById("userPhone").value,
       address: document.getElementById("userAddress").value,
-      searchType:
-        els.searchType.value === "vehicle" ? "By Vehicle" : "By Tire Size",
-      vehicleInfo:
-        [els.year.value, els.make.value, els.model.value, els.trim.value]
-          .filter(Boolean)
-          .join(" ") || "N/A",
-      tireSize: els.tireSize.value || "Not specified",
-      season: els.season.value,
+      searchType: isByTireSize ? "By Tire Size" : "By Vehicle",
+      vehicleInfo: vehicleInfo, // Always include vehicle info if available
+      tireSize: tireInfo, // Use the appropriate tire size
+      season: finalSeason, // Use the appropriate season
+      // Add additional tire data for more detail
+      tireData: isByTireSize ? tireSizeData : null,
+      frontTireSize:
+        isByTireSize && tireSizeData.frontWidth
+          ? `${tireSizeData.frontWidth}/${
+              tireSizeData.frontProfile
+            }R${tireSizeData.frontWheelSize.replace('"', "")}`
+          : null,
+      rearTireSize:
+        isByTireSize && tireSizeData.rearWidth
+          ? `${tireSizeData.rearWidth}/${
+              tireSizeData.rearProfile
+            }R${tireSizeData.rearWheelSize.replace('"', "")}`
+          : null,
+      speedRating: isByTireSize ? tireSizeData.speedRating : null,
+      loadIndex: isByTireSize ? tireSizeData.loadIndex : null,
     };
 
     try {
       // 🔄 Loading state
       showLoading(submitBtn, "Sending your information...");
 
-      const response = await fetch("https://buytiresapi.onrender.com/send-lead", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(userData),
-      });
+      const response = await fetch(
+        "https://buytiresapi.onrender.com/send-lead",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(userData),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to send lead");
       }
 
-      // ✅ Success message
-      showSuccessMessage("Information sent! Opening booking page...");
+      // ✅ Toast (quick feedback)
+      showSuccessMessage("Request sent successfully");
+
+      // ✅ Panel (main message)
+      showSuccessPanel();
 
       // 🧹 Cleanup UI (after a brief delay so user sees success message)
       setTimeout(() => {
         clearCustomerDetailsForm();
         clearAllInputs();
 
+        // Reset tire size data
+        tireSizeData = {
+          frontWidth: "",
+          frontProfile: "",
+          frontWheelSize: "",
+          rearWidth: "",
+          rearProfile: "",
+          rearWheelSize: "",
+          mainTireSeason: "",
+          speedRating: "",
+          loadIndex: "",
+        };
+
         if (customerSection) customerSection.classList.remove("active");
         if (searchSection) searchSection.classList.remove("active");
         if (toggleBtn) toggleBtn.classList.remove("hidden");
 
         // 🔁 Reset button
-        hideLoading(submitBtn, "Book a session");
+        hideLoading(submitBtn, "Submit Request");
       }, 1500);
-
-      // ⏩ Open Calendly in NEW TAB after email is sent
-      setTimeout(() => {
-        window.open("https://calendly.com/mercymobile", "_blank");
-      }, 1200);
     } catch (error) {
       console.error("Submission Error:", error);
       showError(
         error.message || "Could not connect to the server. Please try again."
       );
       // 🔁 Reset button on error
-      hideLoading(submitBtn, "Book a session");
+      hideLoading(submitBtn, "Submit Request");
     }
   });
 }
@@ -837,6 +926,21 @@ function updateVehicleDetails() {
     : "Select trim and tire size";
 
   detailsBox.style.display = "block";
+}
+
+function showSuccessPanel() {
+  const panel = document.getElementById("successPanel");
+  if (panel) panel.classList.add("active");
+}
+
+function closeSuccessPanel() {
+  const panel = document.getElementById("successPanel");
+  if (panel) panel.classList.remove("active");
+}
+
+const closeSuccessPanelBtn = document.getElementById("closeSuccessPanel");
+if (closeSuccessPanelBtn) {
+  closeSuccessPanelBtn.addEventListener("click", closeSuccessPanel);
 }
 
 // Initialize search type view
